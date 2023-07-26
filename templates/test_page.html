@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<style>
+a {
+  display: block;
+}
+input {
+  display: block;
+}
+</style>
+<html>
+    <body>
+        <div>
+
+            <h1>Redfish Trawler test page</h1>
+
+            <a href="/services">List Services</a>
+
+            <form action="/add-service" method="POST">
+                <label for="nick">Nickname</label>
+                <input type="text" id="nick", name="nick">
+                <label for="remote_host">Host</label>
+                <input type="text" id="remote_host", name="remote_host">
+                <label for="username">User</label>
+                <input type="text" id="username" name="username">
+                <label for="password">Pass</label>
+                <input type="password" id="password" name="password">
+                <input type="submit" value="Add Service">
+            </form> 
+
+            <br>
+            <br>
+
+            <form action="/delete-service" method="POST">
+                <select id="available_services" name="service_name">
+                    {% for service in available %}
+                        <option value="{{service}}" SELECTED>{{service}}</option>"
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Remove Service">
+            </form> 
+
+            <br>
+            <br>
+
+            <form action="/close-service" method="POST">
+                <select id="live_services" name="service_name">
+                    {% for service in live %}
+                        <option value="{{service}}" SELECTED>{{service}}</option>"
+                    {% endfor %}
+                </select>
+                <input type="submit" value="Close Service">
+            </form> 
+
+        </div>
+    </body>
+</html>
