@@ -18,16 +18,17 @@ python -m pip install -r requirements.txt
 
 flask --app .\redfish_trawler.py run
 
+## Steps to commit
+
+git add ./static/
+
+
 ## TODO
 
-Include proper steps for production
+Include proper steps for production (normalize JS name outputs)
 
 Replace "flask" command with proper web server/application
 
 Proper Error Codes for backend
 
-Install Vue 3 Compatible mode for Bootstrap library
-
-Integrate modal popup for server creation
-
-Integrate updating main view with Chassis information
+Use Vue validation for properties

@@ -28,9 +28,11 @@ live_services = {}
 def get_service_details():
     """Gives us list of services that are available and live
     """    
+    # TODO:  use following to return urls for frontend
     
     return {
-        'available': list(available_services.keys()),
+        # 'available': list(available_services.keys()),
+        'available': {nick: host['base_url'] for nick, host in available_services.items()},
         'live': list(live_services.keys())
     }
 
@@ -56,7 +58,7 @@ def receive_service_details():
     
     print(nick, available_services[nick])
 
-    return "OK"
+    return get_service_details()
 
 
 @app.route('/delete-service', methods=['POST'])
@@ -72,13 +74,14 @@ def remove_service_details():
     if service_name in available_services:
         del available_services[service_name]
     else:
-        return 'SERVICE DOESNT EXIST'
+        # return 'SERVICE DOESNT EXIST'
+        return get_service_details()
 
     if service_name in live_services:
         # close active redfish service
         pass
 
-    return "OK DELETE"
+    return get_service_details()
 
 
 @app.route('/close-service', methods=['POST'])
@@ -89,9 +92,10 @@ def close_service():
         # close active redfish service
         pass
     else:
-        return 'SERVICE NOT LIVE'
+        # return 'SERVICE NOT LIVE'
+        return get_service_details()
 
-    return "OK CLOSE"
+    return get_service_details()
 
 
 @app.route("/")
@@ -168,6 +172,8 @@ def gather_page_info():
                     decoded_chassis = response.dict
 
                 return_data['data'].append(decoded_chassis)
+
+        print(return_data)
     
         return return_data
 

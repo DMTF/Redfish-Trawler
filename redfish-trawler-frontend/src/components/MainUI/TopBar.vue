@@ -1,10 +1,10 @@
 
 <template>
   <div class="bar d-flex">
-    <select class="form-select" id="current_service" v-model="current_service">
+    <select class="form-select" id="current_service" @change="$emit('changeService', current_service)" v-model="current_service">
       <option disabled>Select a Service</option>
-      <option v-for="(service_name, index) in services" :key="index" :value="service_name">
-        {{ index }} - {{ service_name }}
+      <option v-for="(host_url, service_name) in services" :key="service_name" :value="service_name">
+        {{ service_name }} - {{ host_url }}
       </option>
     </select>
 
@@ -60,12 +60,12 @@ export default {
   name: "TopBar",
   setup() {
     const services = ref([])
-    const current_service = ref('TEST')
+    const current_service = ref('')
 
-    const newnickname = ref('TEST')
-    const newhostname = ref('TEST')
-    const newusername = ref('TEST')
-    const newpassword = ref('TEST')
+    const newnickname = ref('')
+    const newhostname = ref('-')
+    const newusername = ref('-')
+    const newpassword = ref('')
 
     function pollServices(event) {
       fetch('http://127.0.0.1:5000/services')
@@ -84,9 +84,8 @@ export default {
           username: newusername.value,
           password: newpassword.value
         })
-      })
-
-      pollServices()
+      }).then(response => response.json())
+      .then(data => services.value = data.available);
     }
 
     function delService(event) {
@@ -98,9 +97,8 @@ export default {
         body: JSON.stringify({
           hostname: current_service.value
         })
-      })
-
-      pollServices()
+      }).then(response => response.json())
+      .then(data => services.value = data.available);
     }
 
     function closeService(event) {
@@ -110,10 +108,8 @@ export default {
         body: JSON.stringify({
           hostname: this.current_service.value
         })
-      })
-
-      pollServices()
-
+      }).then(response => response.json())
+      .then(data => services.value = data.available);
     }
 
     pollServices()

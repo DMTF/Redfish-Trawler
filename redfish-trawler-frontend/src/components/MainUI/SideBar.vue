@@ -2,22 +2,23 @@
   <div class="sidebar">
     <div class="list-group">
       <img class="list-group-item" id="logo" alt="Redfish logo" src="../../assets/redfish.png" />
-      <a href="#" @click="drawServiceRoot" class="list-group-item">Service Information</a>
-      <a href="#" @click="drawChassisPage" class="list-group-item">Chassis</a>
-      <a href="#" class="list-group-item">Managers</a>
-      <a href="#" class="list-group-item">Systems</a>
-      <a href="#" class="list-group-item">User Management</a>
-      <a href="#" class="list-group-item">Logs</a>
-      <a href="#" class="list-group-item">Events</a>
+      <a href="#" @click="$emit('changeMain', 'serviceroot')" class="list-group-item list-group-item-action">Service Information</a>
+      <a href="#" @click="$emit('changeMain', 'chassispage')" class="list-group-item list-group-item-action">Chassis</a>
+      <a href="#" @click="$emit('changeMain', 'blank')" class="list-group-item list-group-item-action">Managers</a>
+      <a href="#" @click="$emit('changeMain', 'blank')" class="list-group-item list-group-item-action">Systems</a>
+      <a href="#" @click="$emit('changeMain', 'blank')" class="list-group-item list-group-item-action">User Management</a>
+      <a href="#" @click="$emit('changeMain', 'blank')" class="list-group-item list-group-item-action">Logs</a>
+      <a href="#" @click="$emit('changeMain', 'blank')" class="list-group-item list-group-item-action">Events</a>
     </div>
   </div>
 </template>
 
 <script>
+import { defineEmits } from 'vue';
 export default {
   name: "SideBar",
   setup() {
-    return {}
+    const emits = defineEmits(['changeMain']);
   }
 };
 </script>
