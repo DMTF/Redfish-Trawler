@@ -40,19 +40,21 @@ def receive_service_details():
     """POST to /add-service, add service details to program
     """    
 
-    nick = request.form.get('name')
+    nick = request.json.get('nickname')
     if nick is None or len(nick.strip()) == 0:
         nick = "Host-{}".format(len([x for x in available_services.keys() if 'Host-' in x]))
 
-    host = request.form.get('host')
-    user = request.form.get('service_name')
-    pw = request.form.get('service_name')
+    host = request.json.get('hostname')
+    user = request.json.get('username')
+    pw = request.json.get('password')
 
     available_services[nick] = {
         "base_url": host,
         "username": user,
         "password": pw
     }
+    
+    print(nick, available_services[nick])
 
     return "OK"
 
@@ -62,7 +64,10 @@ def remove_service_details():
     """POST to /remove-service, removes service_name from active program
     """    
 
-    service_name = request.form.get('service_name')
+    service_name = request.json.get('hostname')
+
+    print(service_name)
+    print(available_services)
 
     if service_name in available_services:
         del available_services[service_name]
@@ -78,7 +83,7 @@ def remove_service_details():
 
 @app.route('/close-service', methods=['POST'])
 def close_service():
-    service_name = request.form.get('service_name')
+    service_name = request.json.get('service_name')
 
     if service_name in live_services:
         # close active redfish service

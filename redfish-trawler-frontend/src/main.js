@@ -1,7 +1,13 @@
 import { createApp } from 'vue'
+
+// Import Bootstrap and BootstrapVue CSS files (order is important)
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap"
+
 import App from './App.vue'
 
-// App.config.compilerOptions.delimiters = ['${', '}$'];
+const my_app = createApp(App)
 
-createApp(App).mount('#app')
+my_app.config.compilerOptions.delimiters = ['${', '}$'];
 
+my_app.mount('#app')

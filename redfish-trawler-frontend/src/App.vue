@@ -1,9 +1,19 @@
 <template>
-  <div>
-    <SideBar/>
-    <TopBar/>
-    <LocationBar/>
-    <MainBlock/>
+  <div class="container-fluid">
+    <div class="row">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-2">
+              <SideBar/>
+            </div>
+            <div class="col">
+              <TopBar/>
+              <LocationBar/>
+              <MainBlock/>
+            </div>
+          </div>
+        </div>
+      </div>
   </div>
 </template>
 
@@ -25,20 +35,29 @@ export default {
 </script>
 
 <style>
+html, body {
+    height: 100%;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: left;
-  margin-top: 60px;
-  margin-left: 200px;
   background-color:antiquewhite;
   border:1px;
   border-style: solid;
   border-color:cornflowerblue;
+  width:100%;
+  height:100%;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+.bar {
+  background-color: white;
+  border: 1px;
+  border-style: solid;
+  border-color: cornflowerblue;
+  padding: 8px;
+}
+img {
+  width:100%
 }
 </style>
