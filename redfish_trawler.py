@@ -1,5 +1,4 @@
 import argparse
-import sqlite3
 import redfish
 
 from flask import Flask, render_template, request
@@ -8,17 +7,25 @@ app = Flask(__name__)
 
 SERVICE_PARAMS = ["base_url", "username", "password"]
 
+LOGIN_TYPES = {
+    'None': None,
+    'Basic': redfish.AuthMethod.BASIC,
+    'Session': redfish.AuthMethod.SESSION
+}
+
 # TODO: Use local database (sqlite3 .db) to store and recall credentials, or simply don't do so, depending on request.
 available_services = {
     "mockup": {
         "base_url": "http://127.0.0.1:8000",
         "username": "NoName",
-        "password": "NoPass"
+        "password": "NoPass",
+        "logintype": redfish.AuthMethod.BASIC
     },
     "mockup2": {
         "base_url": "http://127.0.0.1:8001",
         "username": "NoName",
-        "password": "NoPass"
+        "password": "NoPass",
+        "logintype": redfish.AuthMethod.SESSION
     }
 }
 
@@ -28,10 +35,8 @@ live_services = {}
 def get_service_details():
     """Gives us list of services that are available and live
     """    
-    # TODO:  use following to return urls for frontend
     
     return {
-        # 'available': list(available_services.keys()),
         'available': {nick: host['base_url'] for nick, host in available_services.items()},
         'live': list(live_services.keys())
     }
@@ -46,14 +51,12 @@ def receive_service_details():
     if nick is None or len(nick.strip()) == 0:
         nick = "Host-{}".format(len([x for x in available_services.keys() if 'Host-' in x]))
 
-    host = request.json.get('hostname')
-    user = request.json.get('username')
-    pw = request.json.get('password')
-
+    # TODO: validate information before categorizing it
     available_services[nick] = {
-        "base_url": host,
-        "username": user,
-        "password": pw
+        "base_url": request.json.get('hostname'),
+        "username": request.json.get('username'),
+        "password": request.json.get('password'),
+        "logintype": LOGIN_TYPES.get(request.json.get('logintype'))
     }
     
     print(nick, available_services[nick])
@@ -135,17 +138,18 @@ def route_to_service(path):
     if response.status in [200]:
         contenttype = response.getheader('content-type')
         if 'application/json' in contenttype:
-            decoded = response.dict
-
             return response.dict
     
     return "STATUS CODE {}".format(response.status_code)
 
 
+# TODO: return proper response to frontend in any situation where a login fails or a payload is denied/400 code
 @app.route('/page-view', methods=["GET"])
 def gather_page_info():
     service_name = request.args.get('service_name')
     page_name = request.args.get('page_name')
+
+    print(service_name, page_name)
 
     if service_name is None:
         return 'NO SERVICE GIVEN, GIVE 400 ERROR'
@@ -156,6 +160,8 @@ def gather_page_info():
         context = get_service_context(service_name)
     except KeyError as e:
         return str(e)
+    
+    print(context)
 
     if page_name.lower() == 'chassis':
         return_data = {'data': []}
@@ -172,9 +178,7 @@ def gather_page_info():
                     decoded_chassis = response.dict
 
                 return_data['data'].append(decoded_chassis)
-
-        print(return_data)
-    
+        
         return return_data
 
     return 'OK PAGE VIEW'
@@ -192,8 +196,16 @@ def get_service_context(service_name):
             raise KeyError('SERVICE {} DOESNT EXIST, GIVE 400 ERROR'.format(service_name))
 
         params = available_services.get(service_name)
-        
-        live_services[service_name] = redfish.redfish_client(**params)
+
+        context = redfish.redfish_client(
+            base_url=params['base_url'],
+            username=params['username'],
+            password=params['password']
+        )
+
+        context.login(auth=params['logintype'])
+
+        live_services[service_name] = context
     
     return live_services[service_name]
 

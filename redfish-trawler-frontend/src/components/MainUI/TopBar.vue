@@ -39,6 +39,14 @@
                 <label for="service-password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="service-password" v-model="newpassword" placeholder="">
               </div>
+              <div class="mb-3">
+                <label for="service-logintype" class="form-label">Login Type</label>
+                <select class="form-select" id="login-type" v-model="newlogintype">
+                  <option value="Basic">Basic</option>
+                  <option value="Session">Session</option>
+                  <option value="None">None</option>
+                </select>
+              </div>
             </form>
           </div>
           <div class="modal-footer">
@@ -66,6 +74,7 @@ export default {
     const newhostname = ref('-')
     const newusername = ref('-')
     const newpassword = ref('')
+    const newlogintype = ref('Basic')
 
     function pollServices(event) {
       fetch('http://127.0.0.1:5000/services')
@@ -82,7 +91,8 @@ export default {
           nickname: newnickname.value,
           hostname: newhostname.value,
           username: newusername.value,
-          password: newpassword.value
+          password: newpassword.value,
+          logintype: newlogintype.value,
         })
       }).then(response => response.json())
       .then(data => services.value = data.available);
@@ -114,7 +124,7 @@ export default {
 
     pollServices()
 
-    return { services, current_service, newhostname, newnickname, newusername, newpassword, addService, delService, closeService, pollServices}
+    return { services, current_service, newhostname, newnickname, newusername, newpassword, newlogintype, addService, delService, closeService, pollServices}
   }
 };
 </script>

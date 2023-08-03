@@ -4,7 +4,11 @@ This is the repository containing the DMTF tool *Redfish-Trawler*.
 
 ## Steps to compile
 
+Ensure your platform has `npm` installed into your system.
+
 cd redfish-trawler-frontend
+
+npm install
 
 npm run build
 
@@ -21,7 +25,6 @@ flask --app .\redfish_trawler.py run
 ## Steps to commit
 
 git add ./static/
-
 
 ## TODO
 
