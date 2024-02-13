@@ -2,13 +2,15 @@
   <div class="sidebar">
     <div class="list-group">
       <img class="list-group-item" id="logo" alt="Redfish logo" src="../../assets/redfish.png" />
-      <a href="#" @click="$emit('changeMain', 'serviceroot')" class="list-group-item list-group-item-action">Service Information</a>
+      <a href="#" @click="$emit('changeMain', 'rootpage')" class="list-group-item list-group-item-action">Service Information</a>
       <a href="#" @click="$emit('changeMain', 'chassispage')" class="list-group-item list-group-item-action">Chassis</a>
-      <a href="#" @click="$emit('changeMain', 'blank')" class="list-group-item list-group-item-action">Managers</a>
-      <a href="#" @click="$emit('changeMain', 'blank')" class="list-group-item list-group-item-action">Systems</a>
-      <a href="#" @click="$emit('changeMain', 'blank')" class="list-group-item list-group-item-action">User Management</a>
-      <a href="#" @click="$emit('changeMain', 'blank')" class="list-group-item list-group-item-action">Logs</a>
-      <a href="#" @click="$emit('changeMain', 'blank')" class="list-group-item list-group-item-action">Events</a>
+      <a href="#" @click="$emit('changeMain', 'managerpage')" class="list-group-item list-group-item-action">Managers</a>
+      <a href="#" @click="$emit('changeMain', 'systempage')" class="list-group-item list-group-item-action">Systems</a>
+      <a href="#" @click="$emit('changeMain', 'userpage')" class="list-group-item list-group-item-action">User Management</a>
+      <a href="#" @click="$emit('changeMain', 'logpage')" class="list-group-item list-group-item-action">Logs</a>
+      <a href="#" @click="$emit('changeMain', 'eventspage')" class="list-group-item list-group-item-action">Events</a>
+      <!-- TODO: Disable if debug is OFF -->
+      <a href="#" @click="$emit('changeMain', 'testpage')" class="list-group-item list-group-item-action">!!TEST!!</a>
     </div>
   </div>
 </template>

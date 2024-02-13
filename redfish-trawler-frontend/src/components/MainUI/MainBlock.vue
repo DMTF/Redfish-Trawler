@@ -1,12 +1,10 @@
 <template>
-  <div>
-    Add and select a service to Continue
-  </div>
+  <div>Add and select a service to Continue</div>
 </template>
 
 <script>
 export default {
-  name: 'MainBlock',
+  name: 'MainBlock'
 }
 </script>
 

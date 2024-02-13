@@ -28,8 +28,8 @@
 <script>
 import { ref } from 'vue';
 export default {
-    name: 'PageChassis',
-    props: ['chassisPayload'],
+    name: 'PageTest',
+    props: ['testPayload'],
     watch: {
     chassisPayload() {
         this.allChassis = this.chassisPayload

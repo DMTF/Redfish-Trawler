@@ -1,5 +1,7 @@
 import argparse
+import pdb
 import redfish
+from urllib import parse
 
 from flask import Flask, render_template, request
 
@@ -13,7 +15,8 @@ LOGIN_TYPES = {
     'Session': redfish.AuthMethod.SESSION
 }
 
-# TODO: Use local database (sqlite3 .db) to store and recall credentials, or simply don't do so, depending on request.
+
+# TODO: Do not store credentials locally, let the browser do it, if at all.
 available_services = {
     "mockup": {
         "base_url": "http://127.0.0.1:8000",
@@ -29,13 +32,15 @@ available_services = {
     }
 }
 
+
 live_services = {}
+
 
 @app.route('/services', methods=['GET'])
 def get_service_details():
     """Gives us list of services that are available and live
-    """    
-    
+    """
+
     return {
         'available': {nick: host['base_url'] for nick, host in available_services.items()},
         'live': list(live_services.keys())
@@ -45,11 +50,12 @@ def get_service_details():
 @app.route('/add-service', methods=['POST'])
 def receive_service_details():
     """POST to /add-service, add service details to program
-    """    
+    """
 
     nick = request.json.get('nickname')
     if nick is None or len(nick.strip()) == 0:
-        nick = "Host-{}".format(len([x for x in available_services.keys() if 'Host-' in x]))
+        nick = "Host-{}".format(
+            len([x for x in available_services.keys() if 'Host-' in x]))
 
     # TODO: validate information before categorizing it
     available_services[nick] = {
@@ -58,7 +64,7 @@ def receive_service_details():
         "password": request.json.get('password'),
         "logintype": LOGIN_TYPES.get(request.json.get('logintype'))
     }
-    
+
     print(nick, available_services[nick])
 
     return get_service_details()
@@ -67,7 +73,7 @@ def receive_service_details():
 @app.route('/delete-service', methods=['POST'])
 def remove_service_details():
     """POST to /remove-service, removes service_name from active program
-    """    
+    """
 
     service_name = request.json.get('hostname')
 
@@ -124,23 +130,46 @@ def route_to_service(path):
     service_name = request.args.get('service_name')
 
     if service_name is None:
-        return 'NO SERVICE GIVEN, GIVE 400 ERROR'
+        return 'NO SERVICE GIVEN', 400
 
     try:
         context = get_service_context(service_name)
-    except KeyError as e:
-        return str(e)
+    except KeyError:
+        return 'MISSING SERVICE', 400
 
     print(request.path)
 
     response = context.get(request.path)
 
+    # TODO: Check if we need to use headers for anything
     if response.status in [200]:
         contenttype = response.getheader('content-type')
         if 'application/json' in contenttype:
             return response.dict
-    
+
     return "STATUS CODE {}".format(response.status_code)
+
+
+def get_all_members(context, all_members):
+    data = {}
+    url_responses = {}
+    for url in [member['@odata.id'] for member in all_members]:
+        # TODO: Maybe use expected behavior from full path
+        scheme, netloc, path, params, query, fragment = parse.urlparse(url)
+        if path not in url_responses:
+            response = context.get(path)
+            url_responses[path] = response
+        response = url_responses[path]
+
+        if response.status in [200]:
+            target = response.dict
+            if fragment:
+                target_path = fragment.split('/')[1:] # /path/to/rsc
+                for sub_path in target_path:
+                    target = target[int(sub_path)] if sub_path.isdigit() else target[sub_path]
+
+        data[url] = target
+    return data
 
 
 # TODO: return proper response to frontend in any situation where a login fails or a payload is denied/400 code
@@ -151,34 +180,87 @@ def gather_page_info():
 
     print(service_name, page_name)
 
+    # TODO: make @app routings for consistent 400 errors
     if service_name is None:
-        return 'NO SERVICE GIVEN, GIVE 400 ERROR'
+        return 'NO SERVICE GIVEN', 400
     if page_name is None:
-        return 'NO PAGE GIVEN, GIVE 400 ERROR'
+        return 'NO PAGE GIVEN', 400
 
     try:
         context = get_service_context(service_name)
-    except KeyError as e:
-        return str(e)
-    
+    except KeyError:
+        return 'MISSING SERVICE', 400
+
     print(context)
 
+    # TODO: Work on polling individual resources, using Redfish's baked in polling registering function (and other message registry stuff)?
     if page_name.lower() == 'chassis':
-        return_data = {'data': []}
+        # if single chassis...
+        chassis_name = request.args.get('chassis_name')
+        if chassis_name:
+            return_data = {'_fans': {}, '_poweredby': {}, '_temperatures': {}, '_response': {}}
 
-        response = context.get('/redfish/v1/Chassis')
+            response = context.get('/redfish/v1/Chassis/{}'.format(chassis_name))
+
+            if response.status in [200]:
+                decoded = response.dict
+                return_data['_response'] = decoded
+                response_thermal = context.get(decoded['Thermal'].get('@odata.id')) if decoded.get('Thermal') else None
+                response_links = decoded.get('Links', {})
+
+                # fans
+                all_fans = response_links.get('CooledBy', [])
+                return_data['_fans'].update(get_all_members(context, all_fans))
+                
+                # powered
+                all_powers = response_links.get('PoweredBy', [])
+                return_data['_poweredby'].update(get_all_members(context, all_powers))
+
+                # local thermal
+                if response_thermal:
+                    for inside_fan in response_thermal.dict.get('Fans', []):
+                        return_data['_fans'][inside_fan['@odata.id']] = inside_fan
+                    for inside_temp in response_thermal.dict.get('Temperatures', []):
+                        return_data['_temperatures'][inside_temp['@odata.id']] = inside_temp
+
+            else:
+                return 'NO CHASSIS FOUND', 400
+        else:
+            # Return Format: _chassis: exposed chassis data, response: full response dict
+            return_data = {'_chassis': [], '_response': {}}
+
+            response = context.get('/redfish/v1/Chassis')
+
+            if response.status in [200]:
+                decoded = response.dict
+                return_data['_response'] = decoded
+                return_data['_chassis'] = get_all_members(context, decoded['Members'])
+            else:
+                return 'NO CHASSIS FOUND', 400
+
+        return return_data
+
+    if page_name.lower() == 'usermanagement':
+        # Return Format: _chassis: exposed chassis data, response: full response dict
+        return_data = {'_accounts': [], '_roles': [], '_response': {}}
+
+        response = context.get('/redfish/v1/AccountService')
 
         if response.status in [200]:
             decoded = response.dict
-            all_chassis = decoded['Members']
-            for chassis_url in [m['@odata.id'] for m in all_chassis]:
-                response = context.get(chassis_url)
+            return_data['_response'] = decoded
 
-                if response.status in [200]:
-                    decoded_chassis = response.dict
+            response_accounts = context.get(decoded['Accounts'].get('@odata.id')) if decoded.get('Accounts') else None
+            if response_accounts:
+                return_data['_accounts'] = get_all_members(context, response_accounts.dict['Members'])
+                
+            response_roles = context.get(decoded['Roles'].get('@odata.id')) if decoded.get('Roles') else None
+            if response_roles:
+                return_data['_roles'] = get_all_members(context, response_roles.dict['Members'])
 
-                return_data['data'].append(decoded_chassis)
-        
+        else:
+            return 'NO ACCOUNTSERVICE FOUND', 400
+
         return return_data
 
     return 'OK PAGE VIEW'
@@ -189,11 +271,12 @@ def get_service_context(service_name):
 
     Raises:
         KeyError: service_name doesn't exist
-    """    
+    """
     if live_services.get(service_name) is None:
 
         if available_services.get(service_name) is None:
-            raise KeyError('SERVICE {} DOESNT EXIST, GIVE 400 ERROR'.format(service_name))
+            raise KeyError(
+                'SERVICE {} DOESNT EXIST, GIVE 400 ERROR'.format(service_name))
 
         params = available_services.get(service_name)
 
@@ -206,7 +289,7 @@ def get_service_context(service_name):
         context.login(auth=params['logintype'])
 
         live_services[service_name] = context
-    
+
     return live_services[service_name]
 
 
@@ -214,8 +297,9 @@ if __name__ == '__main__':
     argget = argparse.ArgumentParser(description='Redfish Trawler')
 
     # config
-    argget.add_argument('--hostip', type=str, default='0.0.0.0', help='ip to host on, default 0.0.0.0')
+    argget.add_argument('--hostip', type=str, default='0.0.0.0',
+                        help='ip to host on, default 0.0.0.0')
     args = argget.parse_args()
-    
+
     # Setup ENDPOINTS
     # hello.py

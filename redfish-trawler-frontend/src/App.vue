@@ -26,6 +26,7 @@ import TopBar from './components/MainUI/TopBar.vue'
 import LocationBar from './components/MainUI/LocationBar.vue'
 import MainBlock from './components/MainUI/MainBlock.vue'
 import PageChassis from './components/Pages/PageChassis.vue'
+// import PageTesting from './components/Pages/PageTesting.vue'
 import { ref } from 'vue'
 
 export default {
@@ -35,7 +36,8 @@ export default {
     TopBar,
     LocationBar,
     MainBlock,
-    PageChassis
+    PageChassis,
+    // PageTesting
   },
   setup(){
     const currentPage = ref('main')
@@ -119,6 +121,10 @@ html, body {
     padding:8px;
     text-align: center;
     min-height:500px;
+}
+.basic {
+  justify-content: center;
+  align-items: center;
 }
 img {
   width:100%
