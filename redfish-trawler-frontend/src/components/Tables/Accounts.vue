@@ -1,6 +1,6 @@
 <template>
   <!-- Use Vue template for a basic Table, on all collections -->
-  <div class="title">Accounts
+  <div class="title">{{ title }}
     <a href="#" class="addeditaction">Add New</a>
   </div>
   <div class="basic">
@@ -16,7 +16,7 @@
         </thead>
         <tbody>
             <tr v-for="entry in all_elements" :key="entry">
-                <td> {{ entry.UserName }}</td>
+                <td> <a href="#">{{ entry.UserName }}</a></td>
                 <td> {{ entry.RoleId }}</td>
                 <td> {{ entry.Locked }}</td>
                 <td> {{ entry.Enabled }}</td>
@@ -31,20 +31,25 @@
 import { ref } from 'vue';
 export default {
     name: 'TableAccounts',
-    props: ['myPayload'],
+    props: ['payload', 'keys'],
     watch: {
-    myPayload() {
-        this.all_elements = this.myPayload
-    }
+        payload() {
+            this.all_elements = this.payload
+        },
     },
     setup(props) {
-        console.log(props.myPayload)
-        const all_elements = ref(props.myPayload)
+        console.log(props.payload)
+        console.log(props.keys)
 
-        return {all_elements}
+        const title = ref('Collection')
+        const all_elements = ref(props.payload)
+        const all_keys = ref(props.keys)
+
+        return {title, all_elements, all_keys}
     }
 }
 </script>
 
-<style>
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
 </style>

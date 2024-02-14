@@ -11,6 +11,7 @@
               <LocationBar/>
               <div class="jumbotron hello">
                 <PageChassis :service="current_service" v-if="current_page=='pagechassis' && current_service!='unknown'"/>
+                <PageUserManagement :service="current_service" v-if="current_page=='pageusermanagement' && current_service!='unknown'"/>
                 <MainBlock v-else/>
               </div>
             </div>
@@ -26,6 +27,7 @@ import TopBar from './components/MainUI/TopBar.vue'
 import LocationBar from './components/MainUI/LocationBar.vue'
 import MainBlock from './components/MainUI/MainBlock.vue'
 import PageChassis from './components/Pages/Chassis.vue'
+import PageUserManagement from './components/Pages/UserManagement.vue'
 // import PageTesting from './components/Pages/PageTesting.vue'
 import { ref } from 'vue'
 
@@ -37,6 +39,7 @@ export default {
     LocationBar,
     MainBlock,
     PageChassis,
+    PageUserManagement
     // PageTesting
   },
   setup(){

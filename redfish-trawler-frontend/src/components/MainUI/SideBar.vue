@@ -6,7 +6,7 @@
       <a href="#" @click="$emit('changeMain', 'pagechassis')" class="list-group-item list-group-item-action">Chassis</a>
       <a href="#" @click="$emit('changeMain', 'pagemanager')" class="list-group-item list-group-item-action">Managers</a>
       <a href="#" @click="$emit('changeMain', 'pagesystem')" class="list-group-item list-group-item-action">Systems</a>
-      <a href="#" @click="$emit('changeMain', 'pageuser')" class="list-group-item list-group-item-action">User Management</a>
+      <a href="#" @click="$emit('changeMain', 'pageusermanagement')" class="list-group-item list-group-item-action">User Management</a>
       <a href="#" @click="$emit('changeMain', 'pagelog')" class="list-group-item list-group-item-action">Logs</a>
       <a href="#" @click="$emit('changeMain', 'pageevents')" class="list-group-item list-group-item-action">Events</a>
       <!-- TODO: Disable if debug is OFF -->
