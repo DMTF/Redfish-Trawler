@@ -10,7 +10,7 @@
               <TopBar @change-service="changeService"/>
               <LocationBar/>
               <div class="jumbotron hello">
-                <PageChassis :chassis-payload="current_payload" v-if="currentPage=='chassispage' && current_service!='unknown'"/>
+                <PageChassis :service="current_service" v-if="current_page=='pagechassis' && current_service!='unknown'"/>
                 <MainBlock v-else/>
               </div>
             </div>
@@ -25,7 +25,7 @@ import SideBar from './components/MainUI/SideBar.vue'
 import TopBar from './components/MainUI/TopBar.vue'
 import LocationBar from './components/MainUI/LocationBar.vue'
 import MainBlock from './components/MainUI/MainBlock.vue'
-import PageChassis from './components/Pages/PageChassis.vue'
+import PageChassis from './components/Pages/Chassis.vue'
 // import PageTesting from './components/Pages/PageTesting.vue'
 import { ref } from 'vue'
 
@@ -40,44 +40,11 @@ export default {
     // PageTesting
   },
   setup(){
-    const currentPage = ref('main')
+    const current_page = ref('main')
     const current_service = ref('unknown')
-    const current_payload = ref([
-            {
-                Name: "name",
-                ChassisType: "a",
-                PowerState: "-",
-                Health: "name"
-            },
-            {
-                Name: "name2",
-                ChassisType: "b",
-                PowerState: "-",
-                Health: "name"
-            },
-            {
-                Name: "name3",
-                ChassisType: "c",
-                PowerState: "-",
-                Health: "name"
-            },
-        ]
-    )
 
     function changeMain(data) {
-      if (data == "chassispage") {
-        console.log(data)
-        console.log(current_service.value)
-        if (current_service.value != 'unknown') {
-          fetch('http://127.0.0.1:5000/page-view?service_name=' + current_service.value + '&page_name=chassis', {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-          }).then(response => response.json())
-          .then(payload => current_payload.value = payload.data);
-          console.log(current_payload.value)
-          currentPage.value = data
-        }
-      }
+      current_page.value = data
     }
 
     function changeService(data) {
@@ -85,7 +52,7 @@ export default {
       current_service.value = data
     }
 
-    return {changeMain, changeService, currentPage, current_service, current_payload}
+    return {changeMain, changeService, current_page, current_service}
   }
 }
 </script>
@@ -126,7 +93,27 @@ html, body {
   justify-content: center;
   align-items: center;
 }
+.title {
+  justify-content: left;
+  text-align: left;
+}
+.propertyblock {
+  justify-content: left;
+  text-align: left;
+  background-color: white;
+  border: 1px;
+  border-style: solid;
+  border-color: grey;
+  padding: 8px;
+}
 img {
   width:100%
+}
+td {
+  text-align: center;
+  vertical-align: middle;
+}
+a {
+  color: cornflowerblue;
 }
 </style>

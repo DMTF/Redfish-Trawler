@@ -2,8 +2,10 @@
 <template>
   <!-- Use Vue template for a basic Table, on all collections -->
   <div class="basic">
-    <TableChassis :payload="page_payload['chassis']" v-if="view==='tablechassis'" @gotochassis="elem => gotoResourceChassis(elem)"/>
-    <ResourceChassis :payload="page_payload" v-if="view==='resourcechassis'"/>
+
+      <!-- Use Vue template for a basic Table, on all collections -->
+    <TableChassis :payload="page_payload['_chassis']" v-if="view==='table'" @gotochassis="elem => gotoResourceChassis(elem)"/>
+    <ResourceChassis :payload="page_payload" v-if="view==='resource'"/> 
   </div>
 </template>
 
@@ -18,11 +20,8 @@ export default {
         ResourceChassis
     },
     props: ['service'],
-    watch: {
-    },
+    watch: { },
      setup(props) {
-        console.log('THIS IS SETUP')
-
         // change value of a const ref with .value
         const page_payload = ref({})
         const view = ref('collection')
@@ -34,19 +33,19 @@ export default {
               headers: { 'Content-Type': 'application/json', 'login-info': 'get-from-here'}
           }).then(response => response.json())
           .then(payload => page_payload.value = payload)
-          view.value = 'tablechassis' 
+          view.value = 'table' 
         }
 
         function gotoResourceChassis(elem) {
           console.log('GOTO!!!')
           console.log(elem)
           // TODO: move to its own shared function
-          fetch('http://127.0.0.1:5000/page-view?service_name=' + props.service + '&page_name=chassis&chassis=' + elem, {
+          fetch('http://127.0.0.1:5000/page-view?service_name=' + props.service + '&page_name=chassis&chassis_name=' + elem, {
               method: 'GET',
               headers: { 'Content-Type': 'application/json', 'login-info': 'get-from-here'}
           }).then(response => response.json())
           .then(payload => page_payload.value = payload);
-          view.value = 'resourcechassis' 
+          view.value = 'resource' 
         }
 
         gotoTableChassis()
@@ -55,3 +54,7 @@ export default {
     }
 }
 </script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+</style>

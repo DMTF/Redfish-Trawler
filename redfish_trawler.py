@@ -1,5 +1,4 @@
 import argparse
-import pdb
 import redfish
 from urllib import parse
 
@@ -151,15 +150,15 @@ def route_to_service(path):
 
 
 def get_all_members(context, all_members):
-    data = {}
-    url_responses = {}
+    data = []
+    url_payloads = {}
     for url in [member['@odata.id'] for member in all_members]:
         # TODO: Maybe use expected behavior from full path
         scheme, netloc, path, params, query, fragment = parse.urlparse(url)
-        if path not in url_responses:
+        if path not in url_payloads:
             response = context.get(path)
-            url_responses[path] = response
-        response = url_responses[path]
+            url_payloads[path] = response
+        response = url_payloads[path]
 
         if response.status in [200]:
             target = response.dict
@@ -168,7 +167,7 @@ def get_all_members(context, all_members):
                 for sub_path in target_path:
                     target = target[int(sub_path)] if sub_path.isdigit() else target[sub_path]
 
-        data[url] = target
+        data.append(target)
     return data
 
 
@@ -198,13 +197,13 @@ def gather_page_info():
         # if single chassis...
         chassis_name = request.args.get('chassis_name')
         if chassis_name:
-            return_data = {'_fans': {}, '_poweredby': {}, '_temperatures': {}, '_response': {}}
+            return_data = {'_fans': {}, '_poweredby': {}, '_temperatures': {}, '_payload': {}}
 
             response = context.get('/redfish/v1/Chassis/{}'.format(chassis_name))
 
             if response.status in [200]:
                 decoded = response.dict
-                return_data['_response'] = decoded
+                return_data['_payload'] = decoded
                 response_thermal = context.get(decoded['Thermal'].get('@odata.id')) if decoded.get('Thermal') else None
                 response_links = decoded.get('Links', {})
 
@@ -227,13 +226,13 @@ def gather_page_info():
                 return 'NO CHASSIS FOUND', 400
         else:
             # Return Format: _chassis: exposed chassis data, response: full response dict
-            return_data = {'_chassis': [], '_response': {}}
+            return_data = {'_chassis': [], '_payload': {}}
 
             response = context.get('/redfish/v1/Chassis')
 
             if response.status in [200]:
                 decoded = response.dict
-                return_data['_response'] = decoded
+                return_data['_payload'] = decoded
                 return_data['_chassis'] = get_all_members(context, decoded['Members'])
             else:
                 return 'NO CHASSIS FOUND', 400
@@ -242,13 +241,13 @@ def gather_page_info():
 
     if page_name.lower() == 'usermanagement':
         # Return Format: _chassis: exposed chassis data, response: full response dict
-        return_data = {'_accounts': [], '_roles': [], '_response': {}}
+        return_data = {'_accounts': [], '_roles': [], '_payload': {}}
 
         response = context.get('/redfish/v1/AccountService')
 
         if response.status in [200]:
             decoded = response.dict
-            return_data['_response'] = decoded
+            return_data['_payload'] = decoded
 
             response_accounts = context.get(decoded['Accounts'].get('@odata.id')) if decoded.get('Accounts') else None
             if response_accounts:
