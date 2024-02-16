@@ -4,6 +4,13 @@
       <!-- Use Vue template for a basic Table, on all collections -->
     <TableAccounts :payload="page_payload['_accounts']" v-if="view==='table'" @gotoaccount="elem => gotoResource(elem)"/>
     <TableRoles :payload="page_payload['_roles']" v-if="view==='table'" @gotorole="elem => gotoResource(elem)"/> 
+    <div class="propertyblock" v-if="view==='table'">
+        <div v-for="entry in ['ServiceEnabled', 'AuthFailureLoggingThreshold', 'MinPasswordLength',
+                              'AccountLockoutDuration', 'AccountLockoutThreshold', 'AccountLockoutCounterResetAfter']" :key="entry">
+            {{ entry }}: {{ page_payload['_payload'][entry] }}
+        </div>
+    </div>
+
     <ResourceGeneric :payload="page_payload" v-if="view==='resource'"/>
   </div>
 </template>
@@ -24,7 +31,7 @@ export default {
     watch: { },
      setup(props) {
         // change value of a const ref with .value
-        const page_payload = ref({})
+        const page_payload = ref({'_payload': {}})
         const view = ref('table')
 
         function gotoTable() {

@@ -163,7 +163,6 @@ def route_to_service(path):
     return "STATUS CODE {}".format(405)
 
 
-
 def get_all_members(context, all_members):
     data = []
     url_payloads = {}
@@ -183,6 +182,7 @@ def get_all_members(context, all_members):
                     target = target[int(sub_path)] if sub_path.isdigit() else target[sub_path]
 
         data.append(target)
+    print(data)
     return data
 
 
@@ -212,7 +212,7 @@ def gather_page_info():
         # if single chassis...
         chassis_name = request.args.get('chassis_name')
         if chassis_name:
-            return_data = {'_fans': {}, '_poweredby': {}, '_temperatures': {}, '_payload': {}}
+            return_data = {'_fans': [], '_poweredby': [], '_temperatures': [], '_payload': {}}
 
             response = context.get('/redfish/v1/Chassis/{}'.format(chassis_name))
 
@@ -224,18 +224,18 @@ def gather_page_info():
 
                 # fans
                 all_fans = response_links.get('CooledBy', [])
-                return_data['_fans'].update(get_all_members(context, all_fans))
+                return_data['_fans'].extend(get_all_members(context, all_fans))
                 
                 # powered
                 all_powers = response_links.get('PoweredBy', [])
-                return_data['_poweredby'].update(get_all_members(context, all_powers))
+                return_data['_poweredby'].extend(get_all_members(context, all_powers))
 
                 # local thermal
                 if response_thermal:
                     for inside_fan in response_thermal.dict.get('Fans', []):
-                        return_data['_fans'][inside_fan['@odata.id']] = inside_fan
+                        return_data['_fans'].append(inside_fan)
                     for inside_temp in response_thermal.dict.get('Temperatures', []):
-                        return_data['_temperatures'][inside_temp['@odata.id']] = inside_temp
+                        return_data['_temperatures'].append(inside_temp)
 
             else:
                 return 'NO CHASSIS FOUND', 400
