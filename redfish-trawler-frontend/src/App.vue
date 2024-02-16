@@ -10,7 +10,7 @@
             <div class="col">
               <TopBar @change-service="changeService"/>
               <LocationBar/>
-              <div class="jumbotron hello">
+              <div class="jumbotron hello" :key="reset_me">
                 <PageChassis :service="current_service" v-if="current_page=='pagechassis' && current_service!='unknown'"/>
                 <PageUserManagement :service="current_service" v-else-if="current_page=='pageusermanagement' && current_service!='unknown'"/>
                 <div v-else-if="!current_service || current_service==='unknown'">
@@ -53,14 +53,17 @@ export default {
     // SEE: App -> ChassisPage -> ChassisTable -> ActionResetChassis
     const current_page = ref('main')
     const current_service = ref('unknown')
+    const reset_me = ref(0)
 
     function changeMain(data) {
       current_page.value = data
+      reset_me.value += 1
     }
 
     function changeService(data) {
       console.log(data)
       current_service.value = data
+      reset_me.value += 1
     }
 
     function showToast(data) {
@@ -68,7 +71,7 @@ export default {
 
     }
 
-    return {changeMain, changeService, current_page, current_service}
+    return {changeMain, changeService, current_page, current_service, reset_me}
   }
 }
 </script>

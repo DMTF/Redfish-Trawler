@@ -4,7 +4,9 @@
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <div class="title">{{ title }}</div>
+                    <div class="title">{{ title }}
+                        <ActionDeleteResource v-if="deleteable" :target_id="resource['@odata.id']" :service="service"/>
+                    </div>
                     <div class="propertyblock">
                         <div v-for="(entry, key) in resource" :key="entry">
                             {{ key }}: {{ entry }}
@@ -18,10 +20,13 @@
 
 <script>
 import { ref } from 'vue';
+import ActionDeleteResource from '../Actions/ActionDeleteResource.vue';
 export default {
     name: 'ResourceGeneric',
-    components: { },
-    props: ['payload', 'keys'],
+    components: { 
+        ActionDeleteResource
+    },
+    props: ['service', 'payload', 'keys', 'deleteable'],
     watch: {
         payload() {
             this.title = 'ResourceGeneric'

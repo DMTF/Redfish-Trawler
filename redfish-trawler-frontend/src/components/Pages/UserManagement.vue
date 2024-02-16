@@ -3,6 +3,9 @@
   <div class="basic">
       <!-- Use Vue template for a basic Table, on all collections -->
     <div v-if="view==='table'">
+      <div class="title">Accounts
+        <ActionPostAccount :service="service"/>
+      </div>
       <TableAccounts :payload="page_payload['_accounts']" @gotoaccount="elem => gotoResource(elem)"/>
       <TableRoles :payload="page_payload['_roles']" @gotorole="elem => gotoResource(elem)"/> 
       <div class="title" v-if="view==='table'">Properties
@@ -16,7 +19,7 @@
       </div>
     </div>
 
-    <ResourceGeneric :payload="page_payload" v-if="view==='resource'"/>
+    <ResourceGeneric :service="service" :deleteable="true" :payload="page_payload" v-if="view==='resource'"/>
   </div>
 </template>
 
@@ -25,6 +28,7 @@ import { ref } from 'vue';
 import TableAccounts from '../Tables/Accounts.vue';
 import TableRoles from '../Tables/Roles.vue';
 import ActionPatchAccountService from '../Actions/ActionPatchAccountService.vue';
+import ActionPostAccount from '../Actions/ActionPostAccount.vue';
 import ResourceGeneric from '../Resources/Resource.vue';
 export default {
     name: 'PageUserManagement',
@@ -32,6 +36,7 @@ export default {
         TableAccounts,
         TableRoles,
         ActionPatchAccountService,
+        ActionPostAccount,
         ResourceGeneric
     },
     props: ['service'],

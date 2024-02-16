@@ -1,6 +1,6 @@
 <template>
   <!-- Use Vue template for a basic Table, on all collections -->
-  <div class="title">{{ title }} </div>
+  <!-- <div class="title">{{ title }} </div> -->
   <div class="basic">
     <table class="table">
         <thead>

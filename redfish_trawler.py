@@ -1,5 +1,4 @@
 import argparse
-import pdb
 import redfish
 from urllib import parse
 
@@ -15,7 +14,9 @@ LOGIN_TYPES = {
     'Session': redfish.AuthMethod.SESSION
 }
 
-
+# TODO: Reduce code reuse in backend, such as in GET PATCH POST DELETE
+# TODO: Reduce code reuse in action forms in Frontend
+# TODO: Solve modals being shared between actions
 # TODO: Do not store credentials locally, let the browser do it, if at all.
 available_services = {
     "mockup": {
@@ -28,7 +29,7 @@ available_services = {
         "base_url": "http://127.0.0.1:8001",
         "username": "NoName",
         "password": "NoPass",
-        "logintype": redfish.AuthMethod.SESSION
+        "logintype": redfish.AuthMethod.BASIC
     }
 }
 
@@ -123,9 +124,9 @@ def test_page():
     )
 
 
-@app.route("/redfish/v1", defaults={'path': ''}, methods=["GET", "POST", "PATCH"])
-@app.route("/redfish/v1/", defaults={'path': ''}, methods=["GET", "POST", "PATCH"])
-@app.route("/redfish/v1/<path:path>", methods=["GET", "POST", "PATCH"])
+@app.route("/redfish/v1", defaults={'path': ''}, methods=["GET", "POST", "PATCH", "DELETE"])
+@app.route("/redfish/v1/", defaults={'path': ''}, methods=["GET", "POST", "PATCH", "DELETE"])
+@app.route("/redfish/v1/<path:path>", methods=["GET", "POST", "PATCH", "DELETE"])
 def route_to_service(path):
     service_name = request.args.get('service_name')
 
@@ -157,10 +158,12 @@ def route_to_service(path):
         response = context.post(request.path, body=request.json)
 
         # TODO: Check if we need to use headers for anything
-        if response.status in [200]:
+        if response:
             contenttype = response.getheader('content-type')
-            if 'application/json' in contenttype:
-                return response.dict
+            if contenttype and 'application/json' in contenttype:
+                return response.dict, response.status
+            else:
+                return response.text, response.status
 
         return "STATUS CODE {}".format(response.status)
 
@@ -171,10 +174,28 @@ def route_to_service(path):
         response = context.patch(request.path, body=request.json)
 
         # TODO: Check if we need to use headers for anything
-        if response.status in [200]:
+        if response:
             contenttype = response.getheader('content-type')
-            if 'application/json' in contenttype:
-                return response.dict
+            if contenttype and 'application/json' in contenttype:
+                return response.dict, response.status
+            else:
+                return response.text, response.status
+
+        return "STATUS CODE {}".format(response.status)
+
+    if request.method == 'DELETE':
+        print(request.json)
+
+        # TODO: Check into sanitizing all inputs, even if this is a local program
+        response = context.delete(request.path)
+
+        # TODO: Check if we need to use headers for anything
+        if response:
+            contenttype = response.getheader('content-type')
+            if contenttype and 'application/json' in contenttype:
+                return response.dict, response.status
+            else:
+                return response.text, response.status
 
         return "STATUS CODE {}".format(response.status)
 
@@ -199,7 +220,7 @@ def get_all_members(context, all_members):
                 for sub_path in target_path:
                     target = target[int(sub_path)] if sub_path.isdigit() else target[sub_path]
 
-        data.append(target)
+            data.append(target)
     print(data)
     return data
 

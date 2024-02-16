@@ -53,7 +53,7 @@ export default {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({})
-      }).then(response => response.json());
+      }).then(response => alert([response.status, response.statusText, '\n'].join(' ')));
     }
 
     return { action_info, action_parameters, resetChassis}
