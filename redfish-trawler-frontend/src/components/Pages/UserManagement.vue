@@ -2,8 +2,9 @@
   <!-- Use Vue template for a basic Table, on all collections -->
   <div class="basic">
       <!-- Use Vue template for a basic Table, on all collections -->
-    <TableAccounts :payload="page_payload['_accounts']"/>
-    <TableRoles :payload="page_payload['_roles']"/> 
+    <TableAccounts :payload="page_payload['_accounts']" v-if="view==='table'" @gotoaccount="elem => gotoResource(elem)"/>
+    <TableRoles :payload="page_payload['_roles']" v-if="view==='table'" @gotorole="elem => gotoResource(elem)"/> 
+    <ResourceGeneric :payload="page_payload" v-if="view==='resource'"/>
   </div>
 </template>
 
@@ -11,11 +12,13 @@
 import { ref } from 'vue';
 import TableAccounts from '../Tables/Accounts.vue';
 import TableRoles from '../Tables/Roles.vue';
+import ResourceGeneric from '../Resources/Resource.vue';
 export default {
     name: 'PageUserManagement',
     components: {
         TableAccounts,
-        TableRoles
+        TableRoles,
+        ResourceGeneric
     },
     props: ['service'],
     watch: { },
@@ -34,9 +37,18 @@ export default {
           view.value = 'table' 
         }
 
+        function gotoResource(elem) {
+          fetch('http://127.0.0.1:5000' + elem + "?service_name=" + props.service, {
+              method: 'GET',
+              headers: { 'Content-Type': 'application/json', 'login-info': 'get-from-here'}
+          }).then(response => response.json())
+          .then(payload => page_payload.value = payload)
+          view.value = 'resource' 
+        }
+
         gotoTable()
 
-        return {page_payload, view, gotoTable}
+        return {page_payload, view, gotoTable, gotoResource}
     }
 }
 </script>

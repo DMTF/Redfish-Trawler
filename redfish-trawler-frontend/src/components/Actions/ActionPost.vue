@@ -1,4 +1,3 @@
-
 <template>
   <div class="bar d-flex">
     <select class="form-select" id="current_service" @change="$emit('changeService', current_service)" v-model="current_service">

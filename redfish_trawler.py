@@ -122,9 +122,9 @@ def test_page():
     )
 
 
-@app.route("/redfish/v1", defaults={'path': ''})
-@app.route("/redfish/v1/", defaults={'path': ''})
-@app.route("/redfish/v1/<path:path>")
+@app.route("/redfish/v1", defaults={'path': ''}, methods=["GET", "POST"])
+@app.route("/redfish/v1/", defaults={'path': ''}, methods=["GET", "POST"])
+@app.route("/redfish/v1/<path:path>", methods=["GET", "POST"])
 def route_to_service(path):
     service_name = request.args.get('service_name')
 
@@ -138,15 +138,30 @@ def route_to_service(path):
 
     print(request.path)
 
-    response = context.get(request.path)
+    if request.method == 'GET':
+        response = context.get(request.path)
 
-    # TODO: Check if we need to use headers for anything
-    if response.status in [200]:
-        contenttype = response.getheader('content-type')
-        if 'application/json' in contenttype:
-            return response.dict
+        # TODO: Check if we need to use headers for anything
+        if response.status in [200]:
+            contenttype = response.getheader('content-type')
+            if 'application/json' in contenttype:
+                return {'_payload': response.dict}
 
-    return "STATUS CODE {}".format(response.status_code)
+        return "STATUS CODE {}".format(response.status_code)
+
+    if request.method == 'POST':
+        response = context.get(request.path)
+
+        # TODO: Check if we need to use headers for anything
+        if response.status in [200]:
+            contenttype = response.getheader('content-type')
+            if 'application/json' in contenttype:
+                return response.dict
+
+        return "STATUS CODE {}".format(response.status_code)
+
+    return "STATUS CODE {}".format(405)
+
 
 
 def get_all_members(context, all_members):

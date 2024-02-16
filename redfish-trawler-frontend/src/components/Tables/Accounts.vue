@@ -16,7 +16,7 @@
         </thead>
         <tbody>
             <tr v-for="entry in all_elements" :key="entry">
-                <td> <a href="#">{{ entry.UserName }}</a></td>
+                <td> <a href="#" @click="$emit('gotoaccount', entry['@odata.id'])">{{ entry.UserName }}</a></td>
                 <td> {{ entry.RoleId }}</td>
                 <td> {{ entry.Locked }}</td>
                 <td> {{ entry.Enabled }}</td>

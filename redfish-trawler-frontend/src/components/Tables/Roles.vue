@@ -14,7 +14,7 @@
         </thead>
         <tbody>
             <tr v-for="entry in all_elements" :key="entry">
-                <td> <a href="#">{{ entry.Id }} ({{ entry.Name }})</a></td>
+                <td> <a href="#" @click="$emit('gotorole', entry['@odata.id'])">{{ entry.Id }} ({{ entry.Name }})</a></td>
                 <td> {{ entry.Description }}</td>
                 <td> {{ entry.AssignedPrivileges }}</td>
             </tr>

@@ -1,4 +1,5 @@
 <template>
+  <StatusToast/>
   <div class="container-fluid">
     <div class="row">
         <div class="container">
@@ -22,6 +23,7 @@
 </template>
 
 <script>
+import StatusToast from './components/MainUI/StatusToast.vue'
 import SideBar from './components/MainUI/SideBar.vue'
 import TopBar from './components/MainUI/TopBar.vue'
 import LocationBar from './components/MainUI/LocationBar.vue'
@@ -39,7 +41,8 @@ export default {
     LocationBar,
     MainBlock,
     PageChassis,
-    PageUserManagement
+    PageUserManagement,
+    StatusToast
     // PageTesting
   },
   setup(){
@@ -53,6 +56,11 @@ export default {
     function changeService(data) {
       console.log(data)
       current_service.value = data
+    }
+
+    function showToast(data) {
+      console.log(data)
+
     }
 
     return {changeMain, changeService, current_page, current_service}
