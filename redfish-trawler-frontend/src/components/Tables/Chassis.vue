@@ -1,8 +1,6 @@
 <template>
 <!-- Use Vue template for a basic Table, on all collections -->
-    <div class="title">{{ title }}
-        <a href="#" class="addeditaction">Add New</a>
-    </div>
+    <div class="title">{{ title }} </div>
     <div class="basic">
         <table class="table">
             <thead>
@@ -20,7 +18,7 @@
                     <td> {{ entry.ChassisType }}</td>
                     <td> {{ entry.PowerState }}</td>
                     <td> {{ entry.Status ? entry.Status.Health : 'n/a' }}</td>     
-                    <td> <button class="btn"> Reset </button></td>
+                    <td> <ActionResetChassis :service="service" :target_id="entry.Id"/> </td>
                 </tr>
             </tbody>
         </table>
@@ -29,17 +27,19 @@
 
 <script>
 import { ref } from 'vue';
+import ActionResetChassis from '../Actions/ActionResetChassis.vue';
 export default {
     name: 'TableChassis',
-    props: ['payload', 'keys'],
+    props: ['service', 'payload', 'keys'],
+    components: {
+        ActionResetChassis
+    },
     watch: {
         payload() {
             this.all_elements = this.payload
         },
     },
     setup(props) {
-        console.log(props.payload)
-        console.log(props.keys)
 
         const title = ref('Collection')
         const all_elements = ref(props.payload)

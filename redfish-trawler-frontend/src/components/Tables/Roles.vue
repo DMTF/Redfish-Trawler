@@ -1,8 +1,6 @@
 <template>
   <!-- Use Vue template for a basic Table, on all collections -->
-  <div class="title">{{ title }}
-    <a href="#" class="addeditaction">Add New</a>
-  </div>
+  <div class="title">{{ title }}</div>
   <div class="basic">
     <table class="table">
         <thead>
@@ -37,7 +35,7 @@ export default {
         console.log(props.payload)
         console.log(props.keys)
 
-        const title = ref('Collection')
+        const title = ref('Roles')
         const all_elements = ref(props.payload)
         const all_keys = ref(props.keys)
 

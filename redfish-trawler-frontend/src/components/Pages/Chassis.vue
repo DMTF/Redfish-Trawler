@@ -4,7 +4,7 @@
   <div class="basic">
 
       <!-- Use Vue template for a basic Table, on all collections -->
-    <TableChassis :payload="page_payload['_chassis']" v-if="view==='table'" @gotochassis="elem => gotoResourceChassis(elem)"/>
+    <TableChassis :service="service" :payload="page_payload['_chassis']" v-if="view==='table'" @gotochassis="elem => gotoResourceChassis(elem)"/>
     <ResourceChassis :payload="page_payload" v-if="view==='resource'"/> 
   </div>
 </template>

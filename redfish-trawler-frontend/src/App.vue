@@ -12,8 +12,13 @@
               <LocationBar/>
               <div class="jumbotron hello">
                 <PageChassis :service="current_service" v-if="current_page=='pagechassis' && current_service!='unknown'"/>
-                <PageUserManagement :service="current_service" v-if="current_page=='pageusermanagement' && current_service!='unknown'"/>
-                <MainBlock v-else/>
+                <PageUserManagement :service="current_service" v-else-if="current_page=='pageusermanagement' && current_service!='unknown'"/>
+                <div v-else-if="!current_service || current_service==='unknown'">
+                  Add or select a service to Continue
+                </div>
+                <div v-else>
+                  Select from the sidebar to continue
+                </div>
               </div>
             </div>
           </div>
@@ -27,7 +32,6 @@ import StatusToast from './components/MainUI/StatusToast.vue'
 import SideBar from './components/MainUI/SideBar.vue'
 import TopBar from './components/MainUI/TopBar.vue'
 import LocationBar from './components/MainUI/LocationBar.vue'
-import MainBlock from './components/MainUI/MainBlock.vue'
 import PageChassis from './components/Pages/Chassis.vue'
 import PageUserManagement from './components/Pages/UserManagement.vue'
 // import PageTesting from './components/Pages/PageTesting.vue'
@@ -39,13 +43,14 @@ export default {
     SideBar,
     TopBar,
     LocationBar,
-    MainBlock,
     PageChassis,
     PageUserManagement,
     StatusToast
     // PageTesting
   },
   setup(){
+    // TODO: Don't pass down service all the way down to children, propogate gets to parent (?)
+    // SEE: App -> ChassisPage -> ChassisTable -> ActionResetChassis
     const current_page = ref('main')
     const current_service = ref('unknown')
 

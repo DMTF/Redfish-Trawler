@@ -2,13 +2,18 @@
   <!-- Use Vue template for a basic Table, on all collections -->
   <div class="basic">
       <!-- Use Vue template for a basic Table, on all collections -->
-    <TableAccounts :payload="page_payload['_accounts']" v-if="view==='table'" @gotoaccount="elem => gotoResource(elem)"/>
-    <TableRoles :payload="page_payload['_roles']" v-if="view==='table'" @gotorole="elem => gotoResource(elem)"/> 
-    <div class="propertyblock" v-if="view==='table'">
-        <div v-for="entry in ['ServiceEnabled', 'AuthFailureLoggingThreshold', 'MinPasswordLength',
-                              'AccountLockoutDuration', 'AccountLockoutThreshold', 'AccountLockoutCounterResetAfter']" :key="entry">
-            {{ entry }}: {{ page_payload['_payload'][entry] }}
-        </div>
+    <div v-if="view==='table'">
+      <TableAccounts :payload="page_payload['_accounts']" @gotoaccount="elem => gotoResource(elem)"/>
+      <TableRoles :payload="page_payload['_roles']" @gotorole="elem => gotoResource(elem)"/> 
+      <div class="title" v-if="view==='table'">Properties
+        <ActionPatchAccountService :service="service"/>
+      </div>
+      <div class="propertyblock">
+          <div v-for="entry in ['ServiceEnabled', 'AuthFailureLoggingThreshold', 'MinPasswordLength',
+                                'AccountLockoutDuration', 'AccountLockoutThreshold', 'AccountLockoutCounterResetAfter']" :key="entry">
+              {{ entry }}: {{ page_payload['_payload'][entry] }}
+          </div>
+      </div>
     </div>
 
     <ResourceGeneric :payload="page_payload" v-if="view==='resource'"/>
@@ -19,12 +24,14 @@
 import { ref } from 'vue';
 import TableAccounts from '../Tables/Accounts.vue';
 import TableRoles from '../Tables/Roles.vue';
+import ActionPatchAccountService from '../Actions/ActionPatchAccountService.vue';
 import ResourceGeneric from '../Resources/Resource.vue';
 export default {
     name: 'PageUserManagement',
     components: {
         TableAccounts,
         TableRoles,
+        ActionPatchAccountService,
         ResourceGeneric
     },
     props: ['service'],

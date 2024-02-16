@@ -4,9 +4,7 @@
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <div class="title">{{ title }}
-                        <a href="#" class="addeditaction">Edit</a>
-                    </div>
+                    <div class="title">{{ title }}</div>
                     <div class="propertyblock">
                         <div v-for="entry in ['Name', 'Id', 'SerialNumber', 'SKU', 'Model']" :key="entry">
                             {{ entry }}: {{ resource[entry] }}

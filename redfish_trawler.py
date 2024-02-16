@@ -1,4 +1,5 @@
 import argparse
+import pdb
 import redfish
 from urllib import parse
 
@@ -122,9 +123,9 @@ def test_page():
     )
 
 
-@app.route("/redfish/v1", defaults={'path': ''}, methods=["GET", "POST"])
-@app.route("/redfish/v1/", defaults={'path': ''}, methods=["GET", "POST"])
-@app.route("/redfish/v1/<path:path>", methods=["GET", "POST"])
+@app.route("/redfish/v1", defaults={'path': ''}, methods=["GET", "POST", "PATCH"])
+@app.route("/redfish/v1/", defaults={'path': ''}, methods=["GET", "POST", "PATCH"])
+@app.route("/redfish/v1/<path:path>", methods=["GET", "POST", "PATCH"])
 def route_to_service(path):
     service_name = request.args.get('service_name')
 
@@ -147,10 +148,13 @@ def route_to_service(path):
             if 'application/json' in contenttype:
                 return {'_payload': response.dict}
 
-        return "STATUS CODE {}".format(response.status_code)
+        return "STATUS CODE {}".format(response.status)
 
     if request.method == 'POST':
-        response = context.get(request.path)
+        print(request.json)
+
+        # TODO: Check into sanitizing all inputs, even if this is a local program
+        response = context.post(request.path, body=request.json)
 
         # TODO: Check if we need to use headers for anything
         if response.status in [200]:
@@ -158,7 +162,21 @@ def route_to_service(path):
             if 'application/json' in contenttype:
                 return response.dict
 
-        return "STATUS CODE {}".format(response.status_code)
+        return "STATUS CODE {}".format(response.status)
+
+    if request.method == 'PATCH':
+        print(request.json)
+
+        # TODO: Check into sanitizing all inputs, even if this is a local program
+        response = context.patch(request.path, body=request.json)
+
+        # TODO: Check if we need to use headers for anything
+        if response.status in [200]:
+            contenttype = response.getheader('content-type')
+            if 'application/json' in contenttype:
+                return response.dict
+
+        return "STATUS CODE {}".format(response.status)
 
     return "STATUS CODE {}".format(405)
 
