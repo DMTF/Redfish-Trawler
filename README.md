@@ -1,5 +1,9 @@
 # Redfish-Trawler
 
+Copyright 2023-2024 DMTF.  All rights reserved.
+
+## About
+
 This is the repository containing the DMTF tool *Redfish-Trawler*.
 
 ## Steps to compile
