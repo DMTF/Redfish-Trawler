@@ -20,6 +20,8 @@ You may install the external modules by running:
 
 ## Building
 
+[npm](https://www.npmjs.com/) is required if making changes to Vue files or anything else in the `redfish-trawler-frontend` directory.
+
 ```
 cd redfish-trawler-frontend
 npm install
