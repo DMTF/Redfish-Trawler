@@ -4,38 +4,37 @@ Copyright 2023-2024 DMTF.  All rights reserved.
 
 ## About
 
-This is the repository containing the DMTF tool *Redfish-Trawler*.
+Redfish Trawler is a browser-based client for interacting with Redfish services.
 
-## Steps to compile
+## Prerequisites
 
-Ensure your platform has `npm` installed into your system.
+Redfish Trawler requires Python3 and npm on the user's system.
+Additionally, the following Python packages are required:
 
+* flask: https://pypi.org/project/Flask
+* redfish: https://pypi.org/project/redfish
+
+You may install the external modules by running:
+
+`pip install -r requirements.txt`
+
+## Building
+
+```
 cd redfish-trawler-frontend
-
 npm install
-
 npm run build
+```
 
-## Steps to run
+## Running
 
-python -m venv .venv
+`flask --app redfish_trawler.py run`
 
-.venv/bin/activate || .venv/Scripts/activate
-
-python -m pip install -r requirements.txt
-
-flask --app .\redfish_trawler.py run
+Open a browser and go to http://127.0.0.1:5000.
 
 ## Steps to commit
 
-git add ./static/
-
-## TODO
-
-Include proper steps for production (normalize JS name outputs)
-
-Replace "flask" command with proper web server/application
-
-Proper Error Codes for backend
-
-Use Vue validation for properties
+```
+git add static
+git add <other files>
+```
