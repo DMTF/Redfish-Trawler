@@ -17,7 +17,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                 <th scope="col-4">Role</th>
                 <th scope="col-2">Locked</th>
                 <th scope="col-2">Enabled</th>
-                <th scope="col-2">Subscription Types</th>
+                <th scope="col-2">Account Types</th>
             </tr>
         </thead>
         <tbody>
@@ -26,7 +26,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                 <td> {{ entry.RoleId }}</td>
                 <td> {{ entry.Locked }}</td>
                 <td> {{ entry.Enabled }}</td>
-                <td> {{ entry.AccountTypes }}</td>
+                <td> {{ entry.AccountTypes.join(', ') }}</td>
             </tr>
         </tbody>
     </table>
