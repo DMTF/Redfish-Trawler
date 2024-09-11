@@ -24,20 +24,7 @@ LOGIN_TYPES = {
 # TODO: Reduce code reuse in action forms in Frontend
 # TODO: Solve modals being shared between actions
 # TODO: Do not store credentials locally, let the browser do it, if at all.
-available_services = {
-    "mockup": {
-        "base_url": "http://127.0.0.1:8000",
-        "username": "NoName",
-        "password": "NoPass",
-        "logintype": redfish.AuthMethod.BASIC
-    },
-    "mockup2": {
-        "base_url": "http://127.0.0.1:8001",
-        "username": "NoName",
-        "password": "NoPass",
-        "logintype": redfish.AuthMethod.BASIC
-    }
-}
+available_services = {}
 
 
 live_services = {}

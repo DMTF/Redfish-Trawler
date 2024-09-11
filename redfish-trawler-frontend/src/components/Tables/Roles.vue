@@ -14,15 +14,13 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
         <thead>
             <tr>
                 <th scope="col-2">Name</th>
-                <th scope="col-2">Description</th>
                 <th scope="col-8">Assigned Privileges</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="entry in all_elements" :key="entry">
-                <td> <a href="#" @click="$emit('gotorole', entry['@odata.id'])">{{ entry.Id }} ({{ entry.Name }})</a></td>
-                <td> {{ entry.Description }}</td>
-                <td> {{ entry.AssignedPrivileges }}</td>
+                <td> <a href="#" @click="$emit('gotorole', entry['@odata.id'])">{{ entry.Id }}</a></td>
+                <td> {{ entry.AssignedPrivileges.join(', ') }}</td>
             </tr>
         </tbody>
     </table>
