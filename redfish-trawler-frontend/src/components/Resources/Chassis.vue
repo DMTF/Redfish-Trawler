@@ -57,7 +57,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                         <div class="title">Actions</div>
                         <div>
                             <ActionModal :service="service" 
-                            :action_uri= "'/redfish/v1/Chassis/' + resource.Id + '/Actions/Chassis.Reset'" 
+                            :action_object="resource.Actions ? resource.Actions['#Chassis.Reset'] : null" 
                             title="Reset Chassis" short="Reset Chassis"
                             msg="Are you sure you wish to reset this Chassis?"/>
                         </div>

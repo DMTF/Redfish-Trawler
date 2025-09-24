@@ -55,13 +55,13 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                         <div class="title">Actions</div>
                         <div>
                             <ActionModal :service="service" 
-                            :action_uri= "'/redfish/v1/Manager/' + resource.Id + '/Actions/Manager.Reset'" 
+                            :action_object="resource.Actions ? resource.Actions['#Manager.Reset'] : null" 
                             title="Reset Manager" short="Reset Manager"
                             msg="Are you sure you wish to reset this Manager?"/>
                         </div>
                         <div>
                             <ActionModal :service="service" 
-                            :action_uri= "'/redfish/v1/Manager/' + resource.Id + '/Actions/Manager.ResetToDefaults'" 
+                            :action_object="resource.Actions ? resource.Actions['#Manager.ResetToDefaults'] : null" 
                             :action_info="action_params['reset_defaults']"
                             title="Reset To Defaults" short="Reset To Defaults"
                             msg="Are you sure you wish to reset this Manager?"/>

@@ -11,7 +11,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
     <!-- Button trigger modal -->
     <!-- TODO: replace each button with vue class?  Self check information before accepting -->
     <!-- Take advantage of Vues reactive forms -->
-    <button type="button" href="#" data-bs-toggle="modal" :data-bs-target="'#' + my_id + 'Modal'">
+    <button :disabled="!action_object" :id="my_id + 'ModalButton'" type="button" href="#" data-bs-toggle="modal" :data-bs-target="'#' + my_id + 'Modal'">
       {{ short }}
     </button>
     <div class="modal fade" :id="my_id + 'Modal'" tabindex="-1" :aria-labelledby="my_id + 'Label'" aria-hidden="true">
@@ -52,35 +52,24 @@ import { ref } from 'vue';
 let my_id = 0
 export default {
   name: "ActionGeneric",
-  props: ['service', 'title', 'short', 'msg', 'action_uri', 'action_info'],
+  props: ['service', 'title', 'short', 'msg', 'action_object'],
   beforeCreate() {
     this.my_id = "Action" + my_id.toString();
     my_id += 1;
   },
-  data() {
-    return {}
-  },
-  watch: { 
-    action_info: function(new_value) { 
-      console.log(new_value)
-    }
-  },
   setup(props) {
-
-    const action_info = ref({ })
-
     const action_parameters = ref({ })
 
     function runAction(event) {
       console.log('RUNNING ACTION NOW')
-      fetch('' + props.action_uri + '?service_name=' + props.service, {
+      fetch('' + props.action_object["target"] + '?service_name=' + props.service, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(action_parameters.value)
       }).then(response => alert([response.status, response.statusText, '\n'].join(' ')));
     }
 
-    return { action_parameters, runAction}
+    return {action_parameters, runAction}
   }
 };
 </script>

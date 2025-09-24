@@ -44,7 +44,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
             </div>
             <div class="propertyblock" style="float:right">
                 <ActionModal :service="service" 
-                    :action_uri= "resource['@odata.id'] + '/Actions/LogService.ClearLog'" 
+                    :action_object="resource.Actions ? resource.Actions['#LogService.ClearLog'] : null" 
                     title="Clear Log" short="Clear Log"
                     msg="Are you sure you wish to clear this Log of ALL ENTRIES?"/>
             </div>

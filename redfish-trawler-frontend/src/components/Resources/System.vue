@@ -72,7 +72,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                         <div class="title">Actions</div>
                         <div>
                             <ActionModal :service="service" 
-                            :action_uri= "'/redfish/v1/Systems/' + resource.Id + '/Actions/System.Reset'" 
+                            :action_object="resource.Actions ? resource.Actions['#ComputerSystem.Reset'] : null" 
                             title="Reset System" short="Reset System"
                             msg="Are you sure you wish to reset this System?"/>
                         </div>

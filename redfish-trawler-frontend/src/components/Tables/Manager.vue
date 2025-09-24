@@ -27,7 +27,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                     <td> {{ entry.PowerState }}</td>
                     <td> {{ entry.Status ? entry.Status.Health : 'n/a' }}</td>     
                     <td> <ActionModal :service="service" 
-                        :action_uri= "'/redfish/v1/Managers/' + entry.Id + '/Actions/Manager.Reset'" 
+                        :action_object="entry.Actions ? entry.Actions['#Manager.Reset'] : null" 
                         title="Reset Manager" short="Reset"
                         msg="Are you sure you wish to reset this Manager?"/>
                     </td>

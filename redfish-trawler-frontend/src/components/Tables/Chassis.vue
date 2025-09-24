@@ -27,7 +27,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                     <td> {{ entry.PowerState }}</td>
                     <td> {{ entry.Status ? entry.Status.Health : 'n/a' }}</td>     
                     <td> <ActionModal :service="service" 
-                        :action_uri= "'/redfish/v1/Chassis/' + entry.Id + '/Actions/Chassis.Reset'" 
+                        :action_object="entry.Actions ? entry.Actions['#Chassis.Reset'] : null" 
                         title="Reset Chassis" short="Reset"
                         msg="Are you sure you wish to reset this Chassis?"/>
                     </td>

@@ -9,7 +9,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 <template>
   <div class="bar d-flex">
     <select class="form-select" id="current_service" @change="$emit('changeService', current_service)" v-model="current_service">
-      <option disabled>Select a Service</option>
+      <option select disabled>Select a Service</option>
       <option v-for="(host_url, service_name) in services" :key="service_name" :value="service_name">
         {{ service_name }} - {{ host_url }}
       </option>
