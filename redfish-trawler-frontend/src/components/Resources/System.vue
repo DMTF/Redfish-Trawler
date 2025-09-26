@@ -30,6 +30,9 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                         </thead>
                         <tbody>
+                            <tr v-if="processors.length === 0">
+                                <td colspan="2">--</td>
+                            </tr>
                             <tr v-for="entry in processors" :key="entry">
                                 <td> {{ entry['Id'] }} ({{ entry['Name'] }})</td>
                                 <td> {{ entry.MaxSpeedMHz ? entry['MaxSpeedMHz'] + 'MHz' : '-' }}  </td>
@@ -47,6 +50,9 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                         </thead>
                         <tbody>
+                            <tr v-if="memory.length === 0">
+                                <td colspan="2">--</td>
+                            </tr>
                             <tr v-for="entry in memory" :key="entry">
                                 <td> {{ entry['Id'] }} ({{ entry['Name'] }})</td>
                                 <td> {{ entry.CapacityMiB ? entry['CapacityMiB'] + 'MiB' : '-' }}  </td>
@@ -62,12 +68,19 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                         </thead>
                         <tbody>
+                            <tr v-if="storage.length === 0">
+                                <td colspan="2">--</td>
+                            </tr>
                             <tr v-for="entry in storage" :key="entry">
                                 <td> {{ entry['Id'] }} ({{ entry['Name'] }})</td>
                                 <td> {{ entry['Status']['Health'] }}  </td>
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
                     <div class="propertyblock" style="float: right">
                         <div class="title">Actions</div>
                         <div>

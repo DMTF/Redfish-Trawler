@@ -30,9 +30,12 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                         </thead>
                         <tbody>
+                            <tr v-if="temps.length === 0">
+                                <td colspan="2">--</td>
+                            </tr>
                             <tr v-for="entry in temps" :key="entry">
-                                <td> {{ entry['MemberId'] }} ({{ entry['Name'] }})</td>
-                                <td> {{ entry.ReadingCelsius ? entry['ReadingCelsius'] + 'C*' : ''}} </td>
+                                <td> {{ entry['Name'] }}</td>
+                                <td> {{ entry.Reading ? entry['Reading'] + 'C°' : ''}} </td>
                             </tr>
                         </tbody>
                     </table>
@@ -47,22 +50,52 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                         </thead>
                         <tbody>
+                            <tr v-if="fans.length === 0">
+                                <td colspan="2">--</td>
+                            </tr>
                             <tr v-for="entry in fans" :key="entry">
-                                <td> {{ entry['MemberId'] }} ({{ entry['Name'] }})</td>
-                                <td> {{ entry['Reading'] }} {{ entry['ReadingUnits'] }} </td>
+                                <td> {{ entry['Name'] }}</td>
+                                <td> {{ entry['SpeedPercent']['SpeedRPM'] }} RPM 
+                                     {{ entry['SpeedPercent']['Reading'] ? '(' + entry['SpeedPercent']['Reading'] + "%)" : ''}} </td>
                             </tr>
                         </tbody>
                     </table>
-                    <div class="propertyblock" style="float: right">
-                        <div class="title">Actions</div>
-                        <div>
-                            <ActionModal :service="service" 
-                            :action_object="resource.Actions ? resource.Actions['#Chassis.Reset'] : null" 
-                            title="Reset Chassis" short="Reset Chassis"
-                            msg="Are you sure you wish to reset this Chassis?"/>
+                    <div class="title"> Power Supply Information </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col-4">Name</th>
+                                <th scope="col-4">State</th>
+                                <th scope="col-4">Health</th>
+                                <th scope="col-4">Model</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-if="poweredby.length === 0">
+                                <td colspan="4">--</td>
+                            </tr>
+                            <tr v-for="entry in poweredby" :key="entry">
+                                <td> {{ entry['Name'] }}</td>
+                                <td> {{ entry.Status ? entry.Status.State : 'n/a' }}</td>     
+                                <td> {{ entry.Status ? entry.Status.Health : 'n/a' }}</td>     
+                                <td> {{ entry['Model'] }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                    <div class="col">
+                        <div class="propertyblock" style="float: right">
+                            <div class="title">Actions</div>
+                            <div>
+                                <ActionModal :service="service" 
+                                :action_object="resource.Actions ? resource.Actions['#Chassis.Reset'] : null" 
+                                title="Reset Chassis" short="Reset Chassis"
+                                msg="Are you sure you wish to reset this Chassis?"/>
+                            </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>
     </div>

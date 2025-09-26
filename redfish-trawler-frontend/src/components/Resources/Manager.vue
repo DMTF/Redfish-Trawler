@@ -44,6 +44,9 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                         </thead>
                         <tbody>
+                            <tr v-if="eth_interfaces.length === 0">
+                                <td colspan="3">--</td>
+                            </tr>
                             <tr v-for="entry in eth_interfaces" :key="entry">
                                 <td> {{ entry['Id'] }} ({{ entry['Name'] }})</td>
                                 <td> {{ entry['InterfaceEnabled'] }}</td>
@@ -51,6 +54,10 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
                     <div class="propertyblock" style="float: right">
                         <div class="title">Actions</div>
                         <div>

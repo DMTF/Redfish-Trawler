@@ -18,12 +18,11 @@ from flask_session import Session
 
 app = Flask(__name__)
 
-
 app.config["SECRET_KEY"] = os.urandom(12).hex()
 app.config["SESSION_PERMANENT"] = True 
 app.config["SESSION_TYPE"] = "filesystem"
 
-my_logger = logging.getLogger('rsv')
+my_logger = logging.getLogger('__name__')
 my_logger.setLevel(logging.DEBUG)
 
 standard_out = logging.StreamHandler(sys.stdout)
@@ -50,7 +49,8 @@ def start():
         my_client_id = session['client_id']
         active_session[my_client_id] = {
             "available_services": {},
-            "live_services": {}
+            "live_services": {},
+            "logger": None
         }
     return render_template(
         'compiled/index.html'
@@ -242,6 +242,12 @@ def get_all_members(context, all_members):
     return data
 
 
+def get_from_nav_obj(context, nav_obj):
+    if nav_obj and '@odata.id' in nav_obj:
+        return context.get(nav_obj['@odata.id'])
+    return None
+
+
 # TODO: return proper response to frontend in any situation where a login fails or a payload is denied/400 code
 @app.route('/page-view', methods=["GET"])
 def gather_page_info():
@@ -307,7 +313,7 @@ def gather_page_info():
         return return_data
 
     if page_name.lower() == 'system':
-        # if single system...
+        # if single system...    
         system_name = request.args.get('system_name')
         if system_name:
             return_data = {'_payload': {}, '_memory': [], '_processors': [], '_storage': []}
@@ -361,23 +367,67 @@ def gather_page_info():
             if response.status in [200]:
                 decoded = response.dict
                 return_data['_payload'] = decoded
-                response_thermal = context.get(decoded['Thermal'].get('@odata.id')) if decoded.get('Thermal') else None
+
+                # Thermal section
+                response_thermal = get_from_nav_obj(context, decoded.get('ThermalSubsystem'))
+                if response_thermal:
+                    response_fans = get_from_nav_obj(context, response_thermal.dict.get('Fans'))
+                    if response_fans:
+                        subsystem_fans = get_all_members(context, response_fans.dict['Members'])
+                        for fan in subsystem_fans:
+                            return_data['_fans'].append(fan)
+                    response_metrics = get_from_nav_obj(context, response_thermal.dict.get('ThermalMetrics'))
+                    if response_metrics:
+                        for k, v in response_metrics.dict.get("TemperatureSummaryCelsius", {}).items():
+                            v['Name'] = k
+                            return_data['_temperatures'].append(v)
+                else:
+                    # retrofit to ThermalSubsystem
+                    my_logger.warning('Falling back to Thermal')
+                    response_thermal = get_from_nav_obj(context, decoded.get('Thermal'))
+                    if response_thermal:
+                        for inside_fan in response_thermal.dict.get('Fans', []):
+                            return_data['_fans'].append({
+                                "Name": inside_fan['Name'],
+                                "SpeedPercent": {
+                                    "SpeedRPM": inside_fan['Reading']
+                                }
+                            })
+                        for inside_temp in response_thermal.dict.get('Temperatures', []):
+                            return_data['_temperatures'].append({
+                                "Name": inside_temp['Name'],
+                                "Reading": inside_temp['ReadingCelsius']
+                            })
+                    else:
+                        my_logger.warning('No Thermal object was found')
+
                 response_links = decoded.get('Links', {})
 
                 # fans
                 all_fans = response_links.get('CooledBy', [])
                 return_data['_fans'].extend(get_all_members(context, all_fans))
                 
+                # Power section
+                response_power = get_from_nav_obj(context, decoded.get('PowerSubsystem'))
+                if response_power:
+                    response_subsystems = get_from_nav_obj(context, response_power.dict.get('PowerSupplies'))
+                    if response_subsystems:
+                        inner_supplies = get_all_members(context, response_subsystems.dict['Members'])
+                        for supply in inner_supplies:
+                            return_data['_poweredby'].append(supply)
+                else:
+                    my_logger.warning('Falling back to Power')
+                    response_power = get_from_nav_obj(context, decoded.get('Power'))
+                    if response_power:
+                        pass
+                    else:
+                        my_logger.warning('No Power object was found')
+
+
                 # powered
                 all_powers = response_links.get('PoweredBy', [])
                 return_data['_poweredby'].extend(get_all_members(context, all_powers))
 
-                # local thermal
-                if response_thermal:
-                    for inside_fan in response_thermal.dict.get('Fans', []):
-                        return_data['_fans'].append(inside_fan)
-                    for inside_temp in response_thermal.dict.get('Temperatures', []):
-                        return_data['_temperatures'].append(inside_temp)
 
             else:
                 return 'NO CHASSIS FOUND', 400

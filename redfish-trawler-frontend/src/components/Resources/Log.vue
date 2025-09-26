@@ -22,7 +22,8 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                     </div>
                 </div>
             </div>
-            <div>
+            <div class="row">
+                <div class="col">
                 <table class="table">
                     <thead>
                         <tr>
@@ -41,12 +42,18 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                         </tr>
                     </tbody>
                 </table>
+                </div>
+
             </div>
-            <div class="propertyblock" style="float:right">
-                <ActionModal :service="service" 
-                    :action_object="resource.Actions ? resource.Actions['#LogService.ClearLog'] : null" 
-                    title="Clear Log" short="Clear Log"
-                    msg="Are you sure you wish to clear this Log of ALL ENTRIES?"/>
+            <div class="row">
+                <div class="col">
+                    <div class="propertyblock" style="float:right">
+                        <ActionModal :service="service" 
+                            :action_object="resource.Actions ? resource.Actions['#LogService.ClearLog'] : null" 
+                            title="Clear Log" short="Clear Log"
+                            msg="Are you sure you wish to clear this Log of ALL ENTRIES?"/>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
