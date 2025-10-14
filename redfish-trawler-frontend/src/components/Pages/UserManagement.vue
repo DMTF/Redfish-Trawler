@@ -12,20 +12,20 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
       <!-- Use Vue template for a basic Table, on all collections -->
     <div v-if="view==='table'">
       <div class="title">Accounts
-        <ActionPatchPost :service="service" :action_uri="'/redfish/v1/AccountService/Accounts'"
+        <ActionPatchPost :service="service" :action_uri="'/redfish/v1/AccountService/Accounts'" @refresh="gotoTable"
           :action_info="action_params['post_account']" :msg="'Add New Account'" :short="'Add new'" :call_type="'POST'"/>
       </div>
-      <TableAccounts :payload="page_payload['_accounts']" @gotoaccount="elem => gotoResource(elem)"/>
-      <TableRoles :payload="page_payload['_roles']" @gotorole="elem => gotoResource(elem)"/> 
-      <div class="title" v-if="view==='table'">Properties
-        <ActionPatchPost :service="service" :action_uri="'/redfish/v1/AccountService'"
-          :action_info="action_params['patch_service']" :msg="'Modify Properties'" :short="'Modify'" :call_type="'PATCH'"/>
+      <TableAccounts :payload="page_payload['_accounts']" :service="service" @refresh="gotoTable"/>
+      <TableRoles :payload="page_payload['_roles']" /> 
+      <div class="title" v-if="view==='table'">Account Service Settings
+        <ActionPatchPost :service="service" :action_uri="'/redfish/v1/AccountService'" @refresh="gotoTable"
+          :action_info="pick_params(action_params['patch_service'], Object.keys(page_payload['_payload']))" :msg="'Modify Properties'" :short="'Modify'" :call_type="'PATCH'"/>
       </div>
       <div class="propertyblock">
-          <div v-for="entry in ['ServiceEnabled', 'AuthFailureLoggingThreshold', 'MinPasswordLength',
-                                'AccountLockoutDuration', 'AccountLockoutThreshold', 'AccountLockoutCounterResetAfter']" :key="entry">
-              {{ entry }}: {{ page_payload['_payload'][entry] }}
-          </div>
+          <template v-for="entry in ['ServiceEnabled', 'AuthFailureLoggingThreshold', 'MinPasswordLength',
+                                'AccountLockoutDuration', 'AccountLockoutThreshold', 'AccountLockoutCounterResetAfter']">
+              <div v-if="entry in page_payload['_payload']" :key="entry">{{ entry }}: {{ page_payload['_payload'][entry] }}</div>
+          </template>
       </div>
     </div>
 
@@ -35,6 +35,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 
 <script>
 import { ref } from 'vue';
+import * as _ from "lodash";
 import TableAccounts from '../Tables/Accounts.vue';
 import TableRoles from '../Tables/Roles.vue';
 import ActionPatchPost from '../Actions/ActionPatchPost.vue';
@@ -47,8 +48,14 @@ export default {
         ActionPatchPost,
         ResourceGeneric
     },
+    methods: {
+      // move this to generic modal for all actions to use/filter keys
+      pick_params(current, expected) {
+        return _.pick(current, expected)
+      },
+    },
     props: ['service'],
-    watch: { },
+    watch: {},
      setup(props) {
         // change value of a const ref with .value
         const page_payload = ref({'_payload': {}})
@@ -59,7 +66,7 @@ export default {
               'Locked':  {'option': "Locked", 'value':true},
               'Description': {'option': 'Description', 'value': 0},
               'UserName': {'option': 'UserName', 'value': 0},
-              'Password': {'option': 'Password', 'value': 0},
+              'Password': {'option': 'Password', 'value': 0, 'hidden': true},
               'RoleId': {'option': 'RoleId', 'value': 0}
             },
             "patch_service": {
@@ -72,6 +79,7 @@ export default {
             }
           }
         )
+
 
         function gotoTable() {
           // TODO: move to its own shared function

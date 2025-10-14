@@ -33,6 +33,11 @@ html, body {
   justify-content: center;
   align-items: center;
 }
+.modal {
+  justify-content: left;
+  align-items: left;
+  text-align: left;
+}
 .title {
   justify-content: left;
   text-align: left;

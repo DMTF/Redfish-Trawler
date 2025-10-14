@@ -9,7 +9,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 <template>
   <div class="bar d-flex">
     <select class="form-select" id="current_service" @change="$emit('changeService', current_service)" v-model="current_service">
-      <option select disabled>Select a Service</option>
+      <option disabled selected>Select a Service</option>
       <option v-for="(host_url, service_name) in services" :key="service_name" :value="service_name">
         {{ service_name }} - {{ host_url }}
       </option>
@@ -35,7 +35,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                 <select v-if="(typeof item.value == 'object')" :key="val" class="form-select" :id="key+'id'" v-model="new_service_info[key]">
                   <option v-for="val in item.value" :key="val" :value="val">{{ val }}</option>
                 </select>
-                <input v-else :id="key+'id'" type="text" class="form-control" v-model="new_service_info[key]" placeholder="">
+                <input v-else :id="key+'id'" :type="item.hidden ? 'password': 'text'" class="form-control" v-model="new_service_info[key]" placeholder="">
               </div>
             </form>
           </div>
@@ -64,7 +64,7 @@ export default {
         'nickname':  {'option': "Nickname (optional)", 'value':''},
         'hostname':  {'option': "Hostname", 'value':'http://127.0.0.1:8000'},
         'username':  {'option': "Username", 'value':'-'},
-        'password':  {'option': "Password", 'value':''},
+        'password':  {'option': "Password", 'value':'', 'hidden': true},
         'logintype':  {'option': "LoginType", 'value':['Basic', 'Session', 'None']}
       }
     )

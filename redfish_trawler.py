@@ -390,13 +390,13 @@ def gather_page_info():
                             return_data['_fans'].append({
                                 "Name": inside_fan['Name'],
                                 "SpeedPercent": {
-                                    "SpeedRPM": inside_fan['Reading']
+                                    "SpeedRPM": inside_fan.get('Reading')
                                 }
                             })
                         for inside_temp in response_thermal.dict.get('Temperatures', []):
                             return_data['_temperatures'].append({
                                 "Name": inside_temp['Name'],
-                                "Reading": inside_temp['ReadingCelsius']
+                                "Reading": inside_temp.get('ReadingCelsius')
                             })
                     else:
                         my_logger.warning('No Thermal object was found')
@@ -419,7 +419,8 @@ def gather_page_info():
                     my_logger.warning('Falling back to Power')
                     response_power = get_from_nav_obj(context, decoded.get('Power'))
                     if response_power:
-                        pass
+                        for supply in response_power.dict.get('PowerSupplies', []):
+                            return_data['_poweredby'].append(supply)
                     else:
                         my_logger.warning('No Power object was found')
 

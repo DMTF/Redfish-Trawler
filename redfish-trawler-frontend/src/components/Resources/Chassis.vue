@@ -7,7 +7,8 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 -->
 
 <template>
-<!-- Use Vue template for a basic Table, on all collections -->
+    <!-- TODO: In cases of disabled items, consider checking Status is Absent or Disabled, instead of properties themselves -->
+    <!-- example:  Temperature Sensors and Fans -->
     <div class="basic">
         <div class="container">
             <div class="row">
@@ -35,7 +36,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                             <tr v-for="entry in temps" :key="entry">
                                 <td> {{ entry['Name'] }}</td>
-                                <td> {{ entry.Reading ? entry['Reading'] + 'C°' : ''}} </td>
+                                <td> {{ entry.Reading ? entry['Reading'] + ' C°' : '-'}} </td>
                             </tr>
                         </tbody>
                     </table>
@@ -55,8 +56,9 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                             <tr v-for="entry in fans" :key="entry">
                                 <td> {{ entry['Name'] }}</td>
-                                <td> {{ entry['SpeedPercent']['SpeedRPM'] }} RPM 
+                                <td v-if="entry['SpeedPercent']['SpeedRPM']"> {{ entry['SpeedPercent']['SpeedRPM'] + 'RPM' }}
                                      {{ entry['SpeedPercent']['Reading'] ? '(' + entry['SpeedPercent']['Reading'] + "%)" : ''}} </td>
+                                <td v-else> - </td>
                             </tr>
                         </tbody>
                     </table>
