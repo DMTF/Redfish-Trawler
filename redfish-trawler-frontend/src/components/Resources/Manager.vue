@@ -44,6 +44,9 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                         </thead>
                         <tbody>
+                            <tr v-if="eth_interfaces.length === 0">
+                                <td colspan="3">--</td>
+                            </tr>
                             <tr v-for="entry in eth_interfaces" :key="entry">
                                 <td> {{ entry['Id'] }} ({{ entry['Name'] }})</td>
                                 <td> {{ entry['InterfaceEnabled'] }}</td>
@@ -51,17 +54,21 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                             </tr>
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
                     <div class="propertyblock" style="float: right">
                         <div class="title">Actions</div>
                         <div>
                             <ActionModal :service="service" 
-                            :action_uri= "'/redfish/v1/Manager/' + resource.Id + '/Actions/Manager.Reset'" 
+                            :action_object="resource.Actions ? resource.Actions['#Manager.Reset'] : null" 
                             title="Reset Manager" short="Reset Manager"
                             msg="Are you sure you wish to reset this Manager?"/>
                         </div>
                         <div>
                             <ActionModal :service="service" 
-                            :action_uri= "'/redfish/v1/Manager/' + resource.Id + '/Actions/Manager.ResetToDefaults'" 
+                            :action_object="resource.Actions ? resource.Actions['#Manager.ResetToDefaults'] : null" 
                             :action_info="action_params['reset_defaults']"
                             title="Reset To Defaults" short="Reset To Defaults"
                             msg="Are you sure you wish to reset this Manager?"/>

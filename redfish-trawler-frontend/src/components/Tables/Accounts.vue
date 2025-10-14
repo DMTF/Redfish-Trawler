@@ -18,15 +18,23 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                 <th scope="col-2">Locked</th>
                 <th scope="col-2">Enabled</th>
                 <th scope="col-2">Account Types</th>
+                <th scope="col-2">Action</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="entry in all_elements" :key="entry">
-                <td> <a href="#" @click="$emit('gotoaccount', entry['@odata.id'])">{{ entry.UserName }}</a></td>
+                <td>
+                    <ActionPatchPost :service="service" :discrete="true" @refresh="$emit('refresh')"
+                    :action_uri="'/redfish/v1/AccountService/Accounts/' + entry.Id " :action_info="action_params['edit_user']" :call_type="'PATCH'"
+                    title="Edit Account" :short="entry.UserName"
+                    msg="Do you wish to edit this account?"/>
+                </td>
                 <td> {{ entry.RoleId }}</td>
                 <td> {{ entry.Locked }}</td>
                 <td> {{ entry.Enabled }}</td>
                 <td> {{ entry.AccountTypes ? entry.AccountTypes.join(', ') : '-'}}</td>
+                <td> <ActionDeleteResource :target_id="entry['@odata.id']" :resource_type="Account" :service="service" @refresh="$emit('refresh')"/>
+                </td>
             </tr>
         </tbody>
     </table>
@@ -35,15 +43,30 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 
 <script>
 import { ref } from 'vue';
+import ActionDeleteResource from '../Actions/ActionDeleteResource.vue';
+import ActionPatchPost from '../Actions/ActionPatchPost.vue';
 export default {
     name: 'TableAccounts',
-    props: ['payload', 'keys'],
+    components: { 
+        ActionDeleteResource,
+        ActionPatchPost
+    },
+    props: ['service', 'payload', 'keys'],
     watch: {
         payload() {
             this.all_elements = this.payload
         },
     },
     setup(props) {
+        const action_params = ref({
+            "edit_user": { 
+              'Enabled':  {'option': "Enabled", 'value':true},
+              'Locked':  {'option': "Locked", 'value':true},
+              'UserName': {'option': 'UserName', 'value': 0},
+              'Password': {'option': 'Password', 'value': 0, 'hidden': true},
+              'RoleId': {'option': 'RoleId', 'value': 0}
+            }
+          })
         console.log(props.payload)
         console.log(props.keys)
 
@@ -51,7 +74,7 @@ export default {
         const all_elements = ref(props.payload)
         const all_keys = ref(props.keys)
 
-        return {title, all_elements, all_keys}
+        return {title, all_elements, all_keys, action_params}
     }
 }
 </script>

@@ -27,7 +27,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
                     <td> {{ entry.OverWritePolicy }}</td>
                     <td> {{ entry.Status ? entry.Status.Health : 'n/a' }}</td>     
                     <td> <ActionModal :service="service" 
-                        :action_uri= "entry['@odata.id'] + '/Actions/LogService.ClearLog'" 
+                        :action_object="entry.Actions ? entry.Actions['#LogService.ClearLog'] : null" 
                         title="Clear Log" short="Clear"
                         msg="Are you sure you wish to clear this Log of ALL ENTRIES?"/>
                     </td>
