@@ -55,6 +55,6 @@ For Linux systems:
 ## Steps to commit
 
 ```
-git add static/**
+git add templates/**
 git add <other files>
 ```

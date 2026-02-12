@@ -12,11 +12,11 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
     <a href="#" class="addeditaction">Add New</a>
   </div> -->
   <div class="basic">
-    <table class="table">
+    <table class="table" v-if="all_elements">
         <thead>
             <tr>
                 <th v-for="entry in all_keys" :key="entry" class="col-4">
-                    {{ ekey }}
+                    {{ entry }}
                 </th>
             </tr>
         </thead>
@@ -35,7 +35,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 import { ref } from 'vue';
 export default {
     name: 'TableCollection',
-    props: ['payload', 'keys'],
+    props: ['payload', 'keys', 'title'],
     watch: {
         payload() {
             this.all_elements = this.payload
@@ -48,11 +48,10 @@ export default {
         console.log(props.payload)
         console.log(props.keys)
 
-        const title = ref('Collection')
         const all_elements = ref(props.payload)
         const all_keys = ref(props.keys)
 
-        return {title, all_elements, all_keys}
+        return {all_elements, all_keys}
     }
 }
 </script>

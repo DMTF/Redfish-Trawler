@@ -1,52 +1,36 @@
 {
   "name": "redfish-trawler-frontend",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "clean": "rimraf ../static/",
-    "prebuild": "npm run clean",
-    "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "dev": "vite",
+    "clean": "rimraf ../templates/",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --fix --cache",
+    "format": "prettier --write --experimental-cli src/",
+    "prebuild": "npm run clean"
   },
   "dependencies": {
     "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.1",
-    "core-js": "^3.8.3",
-    "lodash.pick": "^4.4.0",
-    "vue": "^3.3.4"
+    "bootstrap": "^5.3.8",
+    "lodash": "latest",
+    "vue": "^3.5.26"
   },
   "devDependencies": {
-    "@babel/core": "^7.12.16",
-    "@babel/eslint-parser": "^7.12.16",
-    "@vue/cli-plugin-babel": "~5.0.0",
-    "@vue/cli-plugin-eslint": "~5.0.0",
-    "@vue/cli-service": "~5.0.0",
-    "eslint": "^7.32.0",
-    "eslint-plugin-vue": "^8.0.3",
+    "@eslint/js": "^9.39.2",
+    "@vitejs/plugin-vue": "^6.0.3",
+    "@vue/eslint-config-prettier": "^10.2.0",
+    "eslint": "^9.39.2",
+    "eslint-plugin-vue": "~10.6.2",
+    "globals": "^16.5.0",
+    "prettier": "3.7.4",
     "rimraf": "^5.0.1",
-    "webpack-cli": "^5.1.4"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/vue3-essential",
-      "eslint:recommended"
-    ],
-    "parserOptions": {
-      "parser": "@babel/eslint-parser"
-    },
-    "rules": {
-      "no-unused-vars": "off"
-    }
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead",
-    "not ie 11"
-  ]
+    "vite": "^7.3.0",
+    "vite-plugin-vue-devtools": "^8.0.5"
+  }
 }

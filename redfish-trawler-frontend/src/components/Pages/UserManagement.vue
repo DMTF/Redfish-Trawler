@@ -7,8 +7,9 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 -->
 
 <template>
+  <Transition appear>
   <!-- Use Vue template for a basic Table, on all collections -->
-  <div class="basic">
+  <div class="basic" v-if="view!=''">
       <!-- Use Vue template for a basic Table, on all collections -->
     <div v-if="view==='table'">
       <div class="title">Accounts
@@ -31,6 +32,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 
     <ResourceGeneric :service="service" :deleteable="true" :payload="page_payload" v-if="view==='resource'"/>
   </div>
+  </Transition>
 </template>
 
 <script>
@@ -59,7 +61,7 @@ export default {
      setup(props) {
         // change value of a const ref with .value
         const page_payload = ref({'_payload': {}})
-        const view = ref('table')
+        const view = ref('')
         const action_params = ref({
             "post_account": { 
               'Enabled':  {'option': "Enabled", 'value':true},
@@ -83,21 +85,23 @@ export default {
 
         function gotoTable() {
           // TODO: move to its own shared function
+          view.value = ''
           fetch('/page-view?service_name=' + props.service + '&page_name=usermanagement', {
               method: 'GET',
               headers: { 'Content-Type': 'application/json', 'login-info': 'get-from-here'}
           }).then(response => response.json())
           .then(payload => page_payload.value = payload)
-          view.value = 'table' 
+          .then(function(){ view.value = 'table' })
         }
 
         function gotoResource(elem) {
+          view.value = ''
           fetch('' + elem + "?service_name=" + props.service, {
               method: 'GET',
               headers: { 'Content-Type': 'application/json', 'login-info': 'get-from-here'}
           }).then(response => response.json())
           .then(payload => page_payload.value = payload)
-          view.value = 'resource' 
+          .then(function(){ view.value = 'resource' })
         }
 
         gotoTable()

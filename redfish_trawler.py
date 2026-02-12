@@ -9,14 +9,15 @@ import os
 import logging
 import argparse
 import webbrowser
-from urllib import parse
 
 import redfish
 
 from flask import Flask, render_template, request, session
 from flask_session import Session
 
-app = Flask(__name__)
+import resource_get
+
+app = Flask(__name__, static_folder='templates/compiled/static')
 
 app.config["SECRET_KEY"] = os.urandom(12).hex()
 app.config["SESSION_PERMANENT"] = True 
@@ -219,33 +220,6 @@ def route_to_service(path):
     return "STATUS CODE {}".format(405)
 
 
-def get_all_members(context, all_members):
-    data = []
-    url_payloads = {}
-    for url in [member['@odata.id'] for member in all_members]:
-        # TODO: Maybe use expected behavior from full path
-        scheme, netloc, path, params, query, fragment = parse.urlparse(url)
-        if path not in url_payloads:
-            response = context.get(path)
-            url_payloads[path] = response
-        response = url_payloads[path]
-
-        if response.status in [200]:
-            target = response.dict
-            if fragment:
-                target_path = fragment.split('/')[1:] # /path/to/rsc
-                for sub_path in target_path:
-                    target = target[int(sub_path)] if sub_path.isdigit() else target[sub_path]
-
-            data.append(target)
-    print(data)
-    return data
-
-
-def get_from_nav_obj(context, nav_obj):
-    if nav_obj and '@odata.id' in nav_obj:
-        return context.get(nav_obj['@odata.id'])
-    return None
 
 
 # TODO: return proper response to frontend in any situation where a login fails or a payload is denied/400 code
@@ -271,242 +245,30 @@ def gather_page_info():
 
     return_data = {}
 
+    if page_name.lower() == 'update':
+        return resource_get.page_update(context)
+
     # TODO: Work on polling individual resources, using Redfish's baked in polling registering function (and other message registry stuff)?
     if page_name.lower() == 'manager':
-        # if single system...
         manager_name = request.args.get('manager_name')
-        if manager_name:
-            return_data = {}
-
-            response = context.get('/redfish/v1/Managers/{}'.format(manager_name))
-
-            if response.status in [200]:
-                decoded = response.dict
-                return_data['_payload'] = decoded
-
-                if 'NetworkProtocol' in decoded:
-                    response = context.get(decoded['NetworkProtocol']['@odata.id'])
-                    if response.status in [200]:
-                        return_data['_protocol'] = response.dict
-
-                if 'EthernetInterfaces' in decoded:
-                    response = context.get(decoded['EthernetInterfaces']['@odata.id'])
-                    if response.status in [200]:
-                        return_data['_interfaces'] = []
-                        return_data['_interfaces'].extend(get_all_members(context, response.dict['Members']))
-                
-                return return_data
-
-            else:
-                return 'NO MANAGER FOUND', 400
-        else:
-            # Return Format: _members: exposed system data, _payload: full response dict
-            response = context.get('/redfish/v1/Managers')
-
-            if response.status in [200]:
-                decoded = response.dict
-                return_data['_payload'] = decoded
-                return_data['_members'] = get_all_members(context, decoded['Members'])
-            else:
-                return 'NO SYSTEM FOUND', 400
-
-        return return_data
+        return resource_get.page_manager(context, manager_name)
 
     if page_name.lower() == 'system':
         # if single system...    
         system_name = request.args.get('system_name')
-        if system_name:
-            return_data = {'_payload': {}, '_memory': [], '_processors': [], '_storage': []}
-
-            response = context.get('/redfish/v1/Systems/{}'.format(system_name))
-
-            if response.status in [200]:
-                decoded = response.dict
-                return_data['_payload'] = decoded
-                response_links = decoded.get('Links', {})
-
-                # procs
-                if 'Processors' in decoded:
-                    response = context.get(decoded['Processors']['@odata.id'])
-                    if response.status in [200]:
-                        return_data['_processors'].extend(get_all_members(context, response.dict['Members']))
-
-                if 'Memory' in decoded:
-                    response = context.get(decoded['Memory']['@odata.id'])
-                    if response.status in [200]:
-                        return_data['_memory'].extend(get_all_members(context, response.dict['Members']))
-
-                if 'SimpleStorage' in decoded:
-                    response = context.get(decoded['SimpleStorage']['@odata.id'])
-                    if response.status in [200]:
-                        return_data['_storage'].extend(get_all_members(context, response.dict['Members']))
-
-            else:
-                return 'NO SYSTEM FOUND', 400
-        else:
-            # Return Format: _members: exposed system data, _payload: full response dict
-            response = context.get('/redfish/v1/Systems')
-
-            if response.status in [200]:
-                decoded = response.dict
-                return_data['_payload'] = decoded
-                return_data['_members'] = get_all_members(context, decoded['Members'])
-            else:
-                return 'NO SYSTEM FOUND', 400
-
-        return return_data
+        return resource_get.page_system(context, system_name)
 
     elif page_name.lower() == 'chassis':
         # if single chassis...
         chassis_name = request.args.get('chassis_name')
-        if chassis_name:
-            return_data = {'_fans': [], '_poweredby': [], '_temperatures': [], '_payload': {}}
-
-            response = context.get('/redfish/v1/Chassis/{}'.format(chassis_name))
-
-            if response.status in [200]:
-                decoded = response.dict
-                return_data['_payload'] = decoded
-
-                # Thermal section
-                response_thermal = get_from_nav_obj(context, decoded.get('ThermalSubsystem'))
-                if response_thermal:
-                    response_fans = get_from_nav_obj(context, response_thermal.dict.get('Fans'))
-                    if response_fans:
-                        subsystem_fans = get_all_members(context, response_fans.dict['Members'])
-                        for fan in subsystem_fans:
-                            return_data['_fans'].append(fan)
-                    response_metrics = get_from_nav_obj(context, response_thermal.dict.get('ThermalMetrics'))
-                    if response_metrics:
-                        for k, v in response_metrics.dict.get("TemperatureSummaryCelsius", {}).items():
-                            v['Name'] = k
-                            return_data['_temperatures'].append(v)
-                else:
-                    # retrofit to ThermalSubsystem
-                    my_logger.warning('Falling back to Thermal')
-                    response_thermal = get_from_nav_obj(context, decoded.get('Thermal'))
-                    if response_thermal:
-                        for inside_fan in response_thermal.dict.get('Fans', []):
-                            return_data['_fans'].append({
-                                "Name": inside_fan['Name'],
-                                "SpeedPercent": {
-                                    "SpeedRPM": inside_fan.get('Reading')
-                                }
-                            })
-                        for inside_temp in response_thermal.dict.get('Temperatures', []):
-                            return_data['_temperatures'].append({
-                                "Name": inside_temp['Name'],
-                                "Reading": inside_temp.get('ReadingCelsius')
-                            })
-                    else:
-                        my_logger.warning('No Thermal object was found')
-
-                response_links = decoded.get('Links', {})
-
-                # fans
-                all_fans = response_links.get('CooledBy', [])
-                return_data['_fans'].extend(get_all_members(context, all_fans))
-                
-                # Power section
-                response_power = get_from_nav_obj(context, decoded.get('PowerSubsystem'))
-                if response_power:
-                    response_subsystems = get_from_nav_obj(context, response_power.dict.get('PowerSupplies'))
-                    if response_subsystems:
-                        inner_supplies = get_all_members(context, response_subsystems.dict['Members'])
-                        for supply in inner_supplies:
-                            return_data['_poweredby'].append(supply)
-                else:
-                    my_logger.warning('Falling back to Power')
-                    response_power = get_from_nav_obj(context, decoded.get('Power'))
-                    if response_power:
-                        for supply in response_power.dict.get('PowerSupplies', []):
-                            return_data['_poweredby'].append(supply)
-                    else:
-                        my_logger.warning('No Power object was found')
-
-
-                # powered
-                all_powers = response_links.get('PoweredBy', [])
-                return_data['_poweredby'].extend(get_all_members(context, all_powers))
-
-
-            else:
-                return 'NO CHASSIS FOUND', 400
-        else:
-            # Return Format: _members: exposed chassis data, _payload: full response dict
-            response = context.get('/redfish/v1/Chassis')
-
-            if response.status in [200]:
-                decoded = response.dict
-                return_data['_payload'] = decoded
-                return_data['_members'] = get_all_members(context, decoded['Members'])
-            else:
-                return 'NO CHASSIS FOUND', 400
-
-        return return_data
+        return resource_get.page_chassis(context, chassis_name)
 
     if page_name.lower() == 'usermanagement':
-        # Return Format: _chassis: exposed chassis data, response: full response dict
-        return_data = {'_accounts': [], '_roles': [], '_payload': {}}
-
-        response = context.get('/redfish/v1/AccountService')
-
-        if response.status in [200]:
-            decoded = response.dict
-            return_data['_payload'] = decoded
-
-            response_accounts = context.get(decoded['Accounts'].get('@odata.id')) if decoded.get('Accounts') else None
-            if response_accounts:
-                return_data['_accounts'] = get_all_members(context, response_accounts.dict['Members'])
-                
-            response_roles = context.get(decoded['Roles'].get('@odata.id')) if decoded.get('Roles') else None
-            if response_roles:
-                return_data['_roles'] = get_all_members(context, response_roles.dict['Members'])
-
-        else:
-            return 'NO ACCOUNTSERVICE FOUND', 400
-
-        return return_data
+        return resource_get.page_usermanagement(context)
 
     if page_name.lower() == 'log':
-        return_data = {}
         log_name = request.args.get('target')
-        if log_name:
-            # TODO: Make sure input is Sanitized
-            _, _, path, _, _, _ = parse.urlparse(log_name)
-            response = context.get(path)
-
-            if response.status in [200]:
-                decoded = response.dict
-                return_data['_payload'] = decoded
-                log_entry_collection = context.get(decoded['Entries'].get('@odata.id')) if decoded.get('Entries') else None
-                return_data['_entries'] = log_entry_collection.dict['Members'] if log_entry_collection else []
-                return return_data
-
-            else:
-                return 'NO LOG FOUND', 400
-        else:
-            all_member_collections = []
-            all_logservices = []
-
-            # Get all members with a possible log service in them
-            for target in ['/redfish/v1/Managers', '/redfish/v1/Systems', '/redfish/v1/Chassis']:
-                response = context.get(target)
-                if response.status in [200]:
-                    decoded = response.dict
-                    all_member_collections.append(decoded)
-            
-            for item in all_member_collections:
-                my_members = get_all_members(context, item['Members'])
-                for member in my_members:
-                    response_log_members = context.get(member['LogServices'].get('@odata.id')) if member.get('LogServices') else None
-                    if response_log_members:
-                        my_log_members = get_all_members(context, response_log_members.dict['Members'])
-                        all_logservices.extend(my_log_members)
-            
-            return_data['_members'] = all_logservices
-
-            return return_data
+        return resource_get.page_log(context, log_name)
 
     return 'OK PAGE VIEW'
 

@@ -51,6 +51,10 @@ html, body {
   border-color: grey;
   padding: 8px;
 }
+.bottom {
+  position: absolute;
+  bottom: 0;
+}
 img {
   width:100%
 }
@@ -60,4 +64,12 @@ td {
 }
 a {
   color: cornflowerblue;
+}
+
+.fadein-enter-active, .fadein-leave-active {
+  transition: opacity 250ms ease;
+}
+
+.fadein-enter-from, .fadein-leave-to {
+  opacity: 0;
 }
