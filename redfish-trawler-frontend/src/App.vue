@@ -8,8 +8,8 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 
 <template>
   <StatusToast/>
-  <DebugPage :service="current_service" @toggleDebug="toggleDebug"/>
   <div class="container-fluid">
+    <DebugPage :service="current_service" :log="debug_log" v-if="debug_log"/>
     <div class="row">
         <div class="container">
           <div class="row">
@@ -80,7 +80,7 @@ export default {
     const current_service = ref('unknown')
     const reset_me = ref(0)
     const current_root = ref({})
-    const debugVisible = ref(false)
+    const debug_log = ref("")
     const supportedServices = ref([])
 
     function changeMain(data) {
@@ -104,15 +104,10 @@ export default {
     }
 
     function toggleDebug() {
-      document.getElementById('DebugModal').modal('toggle')
+      window.open('debug_log')
     }
 
-    function showToast(data) {
-      console.log(data)
-    }
-    
-
-    return {changeMain, changeService, toggleDebug, current_page, current_service, reset_me, debugVisible, current_root}
+    return {changeMain, changeService, toggleDebug, current_page, current_service, reset_me, debug_log, current_root}
   }
 }
 </script>

@@ -12,7 +12,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
     <!-- TODO: replace each button with vue class?  Self check information before accepting -->
     <!-- Take advantage of Vues reactive forms -->
     <!-- <button :disabled="!action_object" :id="my_id + 'ModalButton'" type="button" href="#" data-bs-toggle="modal" :data-bs-target="'#' + my_id + 'Modal'"> -->
-    <div class="modal fade" id="DebugModal" tabindex="-1" :aria-labelledby="my_id + 'Label'" aria-hidden="true">
+    <div class="modal fade" id="DebugModal" tabindex="-1" :aria-labelledby="'DebugLabel'" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -23,7 +23,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
             Show Debug Info Here
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-danger" @click="$emit('toggleDebug')">Close</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
           </div>
         </div>
       </div>
@@ -36,10 +36,13 @@ export default {
   name: "DebugPage",
   props: ['service'],
   data() {
-    return {visible: false}
+    return {}
   },
   setup(props) {
-    return {}
+  const log_text = ref("")
+  
+
+    return {log_text}
   }
 };
 </script>

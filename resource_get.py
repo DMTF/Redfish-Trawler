@@ -5,6 +5,10 @@
 # License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/Redfish-Trawler/blob/main/LICENSE.md
 
 from urllib import parse
+import logging
+
+my_logger = logging.getLogger()
+my_logger.setLevel(logging.DEBUG)
 
 def get_all_members(context, all_members):
     data = []
@@ -25,7 +29,6 @@ def get_all_members(context, all_members):
                     target = target[int(sub_path)] if sub_path.isdigit() else target[sub_path]
 
             data.append(target)
-    print(data)
     return data
 
 

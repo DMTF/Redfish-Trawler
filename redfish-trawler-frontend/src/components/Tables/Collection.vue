@@ -16,7 +16,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
         <thead>
             <tr>
                 <th v-for="entry in all_keys" :key="entry" class="col-4">
-                    {{ entry }}
+                    {{ all_names[entry] ? all_names[entry] : entry }}
                 </th>
             </tr>
         </thead>
@@ -35,14 +35,8 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 import { ref } from 'vue';
 export default {
     name: 'TableCollection',
-    props: ['payload', 'keys', 'title'],
+    props: ['payload', 'keys', 'key_names', 'title'],
     watch: {
-        payload() {
-            this.all_elements = this.payload
-        },
-        keys() {
-            this.all_keys = this.keys
-        },
     },
     setup(props) {
         console.log(props.payload)
@@ -51,7 +45,10 @@ export default {
         const all_elements = ref(props.payload)
         const all_keys = ref(props.keys)
 
-        return {all_elements, all_keys}
+        // replace keys with clean key names
+        const all_names = ref(props.key_names)
+
+        return {all_elements, all_keys, all_names}
     }
 }
 </script>

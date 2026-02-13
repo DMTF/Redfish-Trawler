@@ -12,6 +12,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
     <template v-if="page_payload['_firmware'] && page_payload['_firmware'].length">
       <div class="title">Firmware</div>
       <TableCollection v-if="page_payload['_firmware'].length" :service="service" :payload="page_payload['_firmware']" 
+        :key_names="{'ReleaseDate': 'Release Date', 'SoftwareId': 'Software ID'}"
         :keys="['Name', 'Version', 'ReleaseDate', 'SoftwareId']" :title="Firmware"/>
     </template>
     <template v-if="page_payload['_software'] && page_payload['_software'].length">
