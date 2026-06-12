@@ -13,6 +13,29 @@ import "bootstrap"
 
 import { createApp } from 'vue'
 
+import { createRouter, createWebHashHistory } from 'vue-router'
+
+import PageChassis from './components/Pages/Chassis.vue'
+import PageSystem from './components/Pages/System.vue'
+import PageUserManagement from './components/Pages/UserManagement.vue'
+import PageManager from './components/Pages/Manager.vue'
+import PageLog from './components/Pages/Log.vue'
+import PageUpdate from './components/Pages/Update.vue'
+
+const routes = [
+  { path: '/Chassis', component: PageChassis, props: route => ({ service: route.query.host }),},
+  { path: '/Systems', component: PageSystem, props: route => ({ service: route.query.host }),},
+  { path: '/Managers', component: PageUserManagement, props: route => ({ service: route.query.host }),},
+  { path: '/UserManagement', component: PageManager, props: route => ({ service: route.query.host }),},
+  { path: '/Logs', component: PageLog, props: route => ({ service: route.query.host }),},
+  { path: '/Update', component: PageUpdate, props: route => ({ service: route.query.host }),},
+]
+
+export const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
+})
+
 // Import Bootstrap and BootstrapVue CSS files (order is important)
 import App from './App.vue'
 
@@ -20,5 +43,6 @@ const my_app = createApp(App)
 
 my_app.config.compilerOptions.delimiters = ['${', '}$'];
 
-// my_app.provide('bootstrap', bootstrap);
+my_app.use(router)
+
 my_app.mount('#app');

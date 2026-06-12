@@ -9,30 +9,43 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 <template>
   <StatusToast/>
   <div class="container-fluid">
-    <DebugPage :service="current_service" :log="debug_log" v-if="debug_log"/>
     <div class="row">
         <div class="container">
           <div class="row">
             <div class="col-sm-2">
-              <SideBar :payload="current_root" @change-main="changeMain" @toggleDebug="toggleDebug"/>
+              <div class="sidebar">
+                <div class="list-group">
+                  <img class="list-group-item" id="logo" alt="Redfish logo" src="./assets/redfish.png" />
+                  <nav>
+                    <RouterLink :to="{path: '/Chassis', query: {host: current_service}}" class="list-group-item list-group-item-action">Chassis</RouterLink>
+                    <RouterLink :to="{path: '/Systems', query: {host: current_service}}" class="list-group-item list-group-item-action">Systems</RouterLink>
+                    <RouterLink :to="{path: '/Managers', query: {host: current_service}}" class="list-group-item list-group-item-action">Managers</RouterLink>
+                    <RouterLink :to="{path: '/UserManagement', query: {host: current_service}}" class="list-group-item list-group-item-action">User Management</RouterLink>
+                    <RouterLink :to="{path: '/Logs', query: {host: current_service}}" class="list-group-item list-group-item-action">Logs</RouterLink>
+                    <RouterLink v-if="current_root['UpdateService']" :to="{path: '/Update', query: {host: current_service}}" class="list-group-item list-group-item-action">Update</RouterLink>
+                    <a href="#" v-else class="notsupported list-group-item list-group-item-action">Update</a>
+                  </nav>
+                  <!-- TODO: Disable if debug is OFF -->
+                  <a href="/debug_log" target="_blank" class="bottom list-group-item list-group-item-action">Debug</a>
+                </div>
+              </div>
             </div>
             <div class="col">
               <TopBar @change-service="changeService"/>
-              <LocationBar/>
+              <div class="bar">
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb-item active">Service Name</li>
+                    <li class="breadcrumb-item active" aria-current="page">...</li>
+                  </ol>
+                </nav>
+              </div>
               <div class="jumbotron hello" :key="reset_me">
                 <Transition appear name="fadein">
-                  <PageChassis :service="current_service" v-if="current_page=='pagechassis' && current_service!='unknown'"/>
-                  <PageUserManagement :service="current_service" v-else-if="current_page=='pageusermanagement' && current_service!='unknown'"/>
-                  <PageSystem :service="current_service" v-else-if="current_page=='pagesystem' && current_service!='unknown'"/>
-                  <PageManager :service="current_service" v-else-if="current_page=='pagemanager' && current_service!='unknown'"/>
-                  <PageLog :service="current_service" v-else-if="current_page=='pagelog' && current_service!='unknown'"/>
-                  <PageUpdate :service="current_service" v-else-if="current_page=='pageupdate' && current_service!='unknown'"/>
-                  <div v-else-if="!current_service || current_service==='unknown'">
-                    Add or select a service to Continue
-                  </div>
-                  <div v-else>
+                  <RouterView/>
+                  <!-- <div v-else>
                     Select from the sidebar to continue
-                  </div>
+                  </div> -->
                 </Transition>
               </div>
             </div>
@@ -44,17 +57,7 @@ License: BSD 3-Clause License. For full text see link: https://github.com/DMTF/R
 
 <script>
 import StatusToast from './components/MainUI/StatusToast.vue'
-import SideBar from './components/MainUI/SideBar.vue'
 import TopBar from './components/MainUI/TopBar.vue'
-import LocationBar from './components/MainUI/LocationBar.vue'
-import DebugPage from './components/MainUI/DebugPage.vue'
-
-import PageChassis from './components/Pages/Chassis.vue'
-import PageUserManagement from './components/Pages/UserManagement.vue'
-import PageSystem from './components/Pages/System.vue'
-import PageManager from './components/Pages/Manager.vue'
-import PageLog from './components/Pages/Log.vue'
-import PageUpdate from './components/Pages/Update.vue'
 
 // Inject Bootstrap with the same key as defined in main.js
 import { ref } from 'vue'
@@ -62,13 +65,7 @@ import { ref } from 'vue'
 export default {
   name: 'App',
   components: {
-    StatusToast, SideBar, TopBar, LocationBar, DebugPage,
-    PageChassis,
-    PageUserManagement,
-    PageSystem,
-    PageManager,
-    PageLog,
-    PageUpdate
+    StatusToast, TopBar
   },
   created () {
       document.title = "Redfish Trawler";
@@ -80,12 +77,10 @@ export default {
     const current_service = ref('unknown')
     const reset_me = ref(0)
     const current_root = ref({})
-    const debug_log = ref("")
-    const supportedServices = ref([])
 
-    function changeMain(data) {
-      current_page.value = data
+    function changeMain() {
       reset_me.value += 1
+      console.log($)
     }
 
     function changeService(data) {
@@ -103,11 +98,7 @@ export default {
       .then(payload => (current_root.value = payload['_payload']))
     }
 
-    function toggleDebug() {
-      window.open('debug_log')
-    }
-
-    return {changeMain, changeService, toggleDebug, current_page, current_service, reset_me, debug_log, current_root}
+    return {changeMain, changeService, current_page, current_service, reset_me, current_root}
   }
 }
 </script>

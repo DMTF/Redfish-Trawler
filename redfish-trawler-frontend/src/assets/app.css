@@ -73,3 +73,23 @@ a {
 .fadein-enter-from, .fadein-leave-to {
   opacity: 0;
 }
+
+.notsupported {
+  background-color: lightgrey;
+  color: darkgrey;
+
+}
+
+.sidebar {
+  background-color: white;
+  height: 100%;
+  border: 1px;
+  border-style: solid;
+  border-color: cornflowerblue;
+  overflow-x: hidden; /* Disable horizontal scroll */
+  position: relative;
+}
+
+#logo {
+  width: 100%;
+}
